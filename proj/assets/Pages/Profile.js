@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, Image, ImageBackground, ScrollView, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, Image, ImageBackground, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import ProgressBar from 'react-native-progress/Bar';
 import Park from "../park.png";
 
@@ -7,7 +7,7 @@ const BASE_URL = 'http://172.20.10.3:5000/get_player';
 const PLAYER_ID = "6648db43f07f2066e226e0b5";
 const API_URL = `${BASE_URL}/${PLAYER_ID}`;
 
-export default function Profile() {
+export default function Profile({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
   const [friendsData, setFriendsData] = useState([]);
@@ -23,19 +23,15 @@ export default function Profile() {
           throw new Error('Data is empty :c');
         }
 
-        setData(result);
+        const friendsDetails = await Promise.all(
+          result.document.friends.map(async (friendId) => {
+            const friendResponse = await fetch(`${BASE_URL}/${friendId}`);
+            return await friendResponse.json();
+          })
+        );
 
-        // Fetch friends data
-        if (result.document.friends && result.document.friends.length > 0) {
-          const friendsDetails = await Promise.all(
-            result.document.friends.map(async (friendId) => {
-              const friendResponse = await fetch(`${BASE_URL}/${friendId}`);
-              return friendResponse.json();
-            })
-          );
-          setFriendsData(friendsDetails);
-        }
-
+        setData(result.document);
+        setFriendsData(friendsDetails);
       } catch (error) {
         setError(error);
       } finally {
@@ -68,30 +64,34 @@ export default function Profile() {
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.content}>
             <View style={styles.photoContainer}>
-              <Image source={{ uri: data.document.profile_pic }} style={styles.circularPhoto} />
+              <Image source={{ uri: data.profile_pic }} style={styles.circularPhoto} />
             </View>
 
-            <Text style={styles.name}>{data.document.name || "Sally the Traveler"}</Text>
-            <Text style={styles.username}>{data.document.username || "SallyX"}</Text>
+            <Text style={styles.name}>{data.name || "Sally the Traveler"}</Text>
+            <Text style={styles.username}>{data.username || "SallyX"}</Text>
 
             <View style={styles.xpContainer}>
               <View style={styles.levelCircle}>
-                <Text style={styles.level}>{Math.floor(data.document.xp / 100) || 1}</Text>
+                <Text style={styles.level}>{Math.floor(data.xp / 100) || 1}</Text>
               </View>
               <View style={styles.xpBar}>
-                <ProgressBar progress={(data.document.xp % 100 || 0) / 100} width={300} height={20} borderRadius={20} color={'#6C5CE7'} />
-                <Text style={styles.xpText}>{`${data.document.xp % 100}/100` || "50/100"}</Text>
+                <ProgressBar progress={(data.xp % 100 || 0) / 100} width={300} height={20} borderRadius={20} color={'#6C5CE7'} />
+                <Text style={styles.xpText}>{`${data.xp % 100}/100` || "50/100"}</Text>
               </View>
             </View>
 
             <View style={styles.descriptionContainer}>
-              <Text style={styles.headerText}>{friendsData.document}</Text>
+              <Text style={styles.headerText}>Friends List</Text>
               <View style={styles.friendsContainer}>
                 {friendsData.map((friend, index) => (
-                  <View style={styles.friend} key={friend.document._id || index}>
-                    <Image source={{ uri: friend.document.profile_pic || "https://upload.wikimedia.org/wikipedia/en/9/9a/Trollface_non-free.png" }} style={styles.friendImage} />
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.friend}
+                    onPress={() => navigation.navigate('FriendProfile', { friendId: friend.document._id })}
+                  >
+                    <Image source={{ uri: friend.document.profile_pic }} style={styles.friendImage} />
                     <Text style={styles.friendName}>{friend.document.name || "Friend"}</Text>
-                  </View>
+                  </TouchableOpacity>
                 ))}
               </View>
             </View>
@@ -101,6 +101,7 @@ export default function Profile() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
