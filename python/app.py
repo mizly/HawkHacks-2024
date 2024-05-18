@@ -20,5 +20,9 @@ def get_song():
 def get_players():
     return db.GET("CommUnity", "Players")
 
+@app.route('/get_player/<id>')
+def get_player(id):
+    return db.GETbyID("CommUnity", "Players", id)
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=6450)  # Change port as needed

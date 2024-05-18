@@ -3,9 +3,8 @@ import json
 from dotenv import load_dotenv
 import os
 
-load_dotenv("hh2024.env")
+load_dotenv(".env")
 api_key = os.getenv("MONGODB_API_KEY")
-print(api_key)
 
 def GET(database,collection):
     url = "https://us-east-1.aws.data.mongodb-api.com/app/data-sikvi/endpoint/data/v1/action/find"
@@ -14,6 +13,26 @@ def GET(database,collection):
         "collection": f"{collection}",
         "database": f"{database}",
         "dataSource": "DeerHacks2024",
+        "projection": None
+    })
+    headers = {
+      'Content-Type': 'application/json',
+      'Access-Control-Request-Headers': '*',
+      'api-key': f'{api_key}',
+    }
+
+    return requests.request("POST", url, headers=headers, data=payload).json()
+
+def GETbyID(database,collection,id):
+    url = "https://us-east-1.aws.data.mongodb-api.com/app/data-sikvi/endpoint/data/v1/action/findOne"
+
+    payload = json.dumps({
+        "collection": f"{collection}",
+        "database": f"{database}",
+        "dataSource": "DeerHacks2024",
+        "filter": {
+            "_id": {"$oid": id}
+        },
         "projection": None
     })
     headers = {
@@ -77,5 +96,3 @@ def PATCH(database, collection, filter_data, update_data):
         return f"Error: {response.status_code}"
     
 
-
-print(GET("CommUnity", "Players"))

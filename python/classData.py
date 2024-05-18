@@ -11,5 +11,5 @@ def addUser(User):
     db.POST("CommUnity", "Players", {"Username":User.userName,"Name":User.name, "Achievements":User.achievements, "Location History":User.locationHistory, "Friends List":User.friendsList})
 
 
-p1 = User("Johnny", "JohnBoi7", {"A_1":0, "A_2":1}, ["Mum's house"], ["XXbbXX", "Spy"])
+p1 = User("VU", "yolooshawott", {"A_1":0, "A_2":1}, ["Vus Mum's house"], ["BBL Drizzy", "K NOT"])
 addUser(p1)
