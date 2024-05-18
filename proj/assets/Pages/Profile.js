@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { StyleSheet, View, Text, Image, ImageBackground, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, Text, Image, ImageBackground, ScrollView, ActivityIndicator } from 'react-native';
 import ProgressBar from 'react-native-progress/Bar';
 
 import PFP from "../TorontoPFP.png";
@@ -8,57 +8,81 @@ import PFP2 from "../PFP2.png";
 import PFP3 from "../PFP3.jpg";
 import Park from "../park.png";
 
-let backgroundTranslateY = 0;
-
 export default function Profile() {
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://172.20.10.3:5000/get_player/6648d44ff07f2066e21d9310'); // Replace with your API endpoint
+        const result = await response.json();
+        setData(result);
+      } catch (error) {
+        setError(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Error fetching data</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <ImageBackground source={Park} style={[styles.backgroundImage, { transform: [{ translateY: backgroundTranslateY }] }]} blurRadius={10}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContainer}
-        scrollEventThrottle={16}
-        onScroll={(event) => {
-          let scrollY = event.nativeEvent.contentOffset.y;
-          let backgroundTranslateY = scrollY * 0.5;
-        }}
-      >
-        {/* <Image source={Park} blurRadius={10} style={[styles.backgroundImage, { transform: [{ translateY: backgroundTranslateY }] }]} /> */}
-        <View style={styles.content}>
-          <View style={styles.photoContainer}>
-            <Image source={PFP} style={styles.circularPhoto} />
-          </View>
-
-          <Text style={styles.name}>Sally the Traveler</Text>
-
-          <View style={styles.xpContainer}>
-            <View style={styles.levelCircle}>
-              <Text style={styles.level}>3</Text>
+      <ImageBackground source={Park} style={styles.backgroundImage} blurRadius={10}>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <View style={styles.content}>
+            <View style={styles.photoContainer}>
+              <Image source={{uri:data.document.profile_pic}} style={styles.circularPhoto} />
             </View>
-            <View style={styles.xpBar}>
-              <ProgressBar progress={0.7} width={300} height={20} borderRadius={20} color={'#6C5CE7'} />
-            </View>
-          </View>
 
-          <View style={styles.descriptionContainer}>
-            <Text style={styles.descriptionText}>Hey! I'm Sally the Traveler and I really love learning about my community. I'm also super passionate about equity, diversity, and inclusion.</Text>
-            <Text style={styles.headerText}>Friends List</Text>
-            <View style={styles.friendsContainer}>
-              <View style={styles.friend}>
-                <Image source={PFP1} style={styles.friendImage} />
-                <Text style={styles.friendName}>Wall-E the Friend</Text>
+            <Text style={styles.name}>{data.document.name || "Sally the Traveler"}</Text>
+            <Text style={styles.username}>{data.document.username || "SallyX"}</Text>
+
+            <View style={styles.xpContainer}>
+              <View style={styles.levelCircle}>
+                <Text style={styles.level}>{Math.floor(data.document.xp/100) || 1}</Text>
               </View>
-              <View style={styles.friend}>
-                <Image source={PFP2} style={styles.friendImage} />
-                <Text style={styles.friendName}>LeBron James</Text>
+              <View style={styles.xpBar}>
+                <ProgressBar progress={(data.document.xp%100 || 0) / 100} width={300} height={20} borderRadius={20} color={'#6C5CE7'} />
               </View>
-              <View style={styles.friend}>
-                <Image source={PFP3} style={styles.friendImage} />
-                <Text style={styles.friendName}>Mecca Barnes</Text>
+            </View>
+
+            <View style={styles.descriptionContainer}>
+              <Text style={styles.descriptionText}>
+                {data.description || "Hey! I'm Sally the Traveler and I really love learning about my community. I'm also super passionate about equity, diversity, and inclusion."}
+              </Text>
+
+              <Text style={styles.headerText}>Friends List</Text>
+              <View style={styles.friendsContainer}>
+                {data.friends && data.friends.map((friend, index) => (
+                  <View style={styles.friend} key={index}>
+                    <Image source={friend.image || PFP1} style={styles.friendImage} />
+                    <Text style={styles.friendName}>{friend.name || "Friend"}</Text>
+                  </View>
+                ))}
               </View>
             </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
       </ImageBackground>
     </View>
   );
@@ -70,15 +94,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    // marginTop: 0,
   },
   scrollContainer: {
-    // flexGrow: 0,
-    // alignItems:'center',
-    // paddingTop:'10%',
-    // paddingBottom:'30%',
-    // backgroundColor:'#fffdef'
-
     flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
@@ -114,7 +131,12 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 10,
+  },
+  username: {
+    fontSize: 12,
+    fontWeight: 'normal',
+    marginBottom: 10,
   },
   xpContainer: {
     flexDirection: 'row',
@@ -166,7 +188,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#ede3da',
     fontWeight: '500',
-    marginTop: 10
+    marginTop: 10,
   },
   friendsContainer: {
     marginTop: 20,
@@ -197,7 +219,7 @@ const styles = StyleSheet.create({
   friendName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: "#ede3da",
+    color: '#ede3da',
   },
   headerText: {
     fontSize: 20,
@@ -205,5 +227,20 @@ const styles = StyleSheet.create({
     color: '#ede3da',
     textAlign: 'center',
     marginTop: 30,
+  },
+  errorText: {
+    fontSize: 16,
+    color: 'red',
+    marginTop: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
