@@ -3,7 +3,7 @@ import json
 from dotenv import load_dotenv
 import os
 
-load_dotenv("hh2024.env")
+load_dotenv(".env")
 api_key = os.getenv("MONGODB_API_KEY")
 print(api_key)
 
