@@ -1,10 +1,7 @@
 import requests
 import json
-from dotenv import load_dotenv
 import os
 
-load_dotenv("hh2024.env")
-print(os.getenv("API_KEY"))
 api_key = "uN5a52qg3b50g9uIJBUZO2YFrZP9dZuo3W8mGi2Gk9DivUa1kjXAFlXF0BzbTLid"
 
 
