@@ -7,7 +7,9 @@ import ProgressBar from 'react-native-progress/Bar';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 
-
+/*
+name, name, name
+*/
 
 const Autocomplete = ({ searchText, onSelect, lat, lng }) => {
   const [suggestions, setSuggestions] = useState([]);
@@ -15,21 +17,18 @@ const Autocomplete = ({ searchText, onSelect, lat, lng }) => {
   useEffect(() => {
     if (searchText) {
       fetchSuggestions(searchText, lat, lng);
-    } else {
-      setSuggestions([]);
     }
   }, [searchText]);
 
   const fetchSuggestions = async (text, lat, lng) => {
     try {
-      const BASE_URL = 'http://127.0.0.1:5000/autocomplete';
+      const BASE_URL = 'http://192.168.2.13:5000/autocomplete';
       const COORDINATES = `${lat},${lng}`;
       const API_URL = `${BASE_URL}/${text}/${COORDINATES}`;
       console.log(API_URL);
       const response = await fetch(API_URL);
       const result = await response.json();
-      console.log(result);
-      setSuggestions(result);
+      setSuggestions(result.data);
     } catch (error) {
       console.error('Error fetching suggestions:', error);
     }
@@ -37,15 +36,17 @@ const Autocomplete = ({ searchText, onSelect, lat, lng }) => {
 
   const handleSelectSuggestion = (suggestion) => {
     onSelect(suggestion);
-    setSuggestions([]);
   };
 
   return (
     <ScrollView style={{ maxHeight: 150 }}>
-      {suggestions.map((suggestion, index) => (
-        <TouchableOpacity key={index} onPress={() => handleSelectSuggestion(suggestion)}>
-          <Text>{suggestion}</Text>
-        </TouchableOpacity>
+      {suggestions && suggestions.map((suggestion, index) => (
+        <View key={index} style={styles.suggestionBox}>
+          <TouchableOpacity key={index} onPress={() => handleSelectSuggestion(suggestion.main_text)}>
+            <Text>{suggestion.main_text}</Text>
+            <Text>{suggestion.secondary_text}</Text>
+          </TouchableOpacity>
+        </View>
       ))}
     </ScrollView>
   );
@@ -134,7 +135,7 @@ export default function MapComponent(props) {
     }).start();
 
     Animated.timing(suggestionsPosition, {
-      toValue: -150,
+      toValue: -660,
       duration: 300,
       useNativeDriver: true,
     }).start();
@@ -410,7 +411,7 @@ const styles = StyleSheet.create({
   },
   suggestionsContainer: {
     position: 'absolute',
-    bottom: 200,
+    bottom: -100,
     width: '90%',
     alignSelf: 'center',
     backgroundColor: 'white',
@@ -428,5 +429,19 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
+  },
+  suggestionsScrollView: {
+    backgroundColor: 'white',
+    borderRadius: 5,
+    elevation: 2,
+  },
+  suggestionBox: {
+    backgroundColor: '#f0f0f0',
+    padding: 10,
+    marginVertical: 5,
+    borderRadius: 5,
+  },
+  suggestionText: {
+    fontSize: 16,
   },
 });
