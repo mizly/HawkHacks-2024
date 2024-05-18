@@ -6,6 +6,9 @@ import Profile from './assets/Pages/Profile';
 import MapComponent from './assets/Pages/Map';
 import Header from './assets/Pages/Header';
 import Spotify from './assets/Pages/Spotify';
+import Quest from './assets/Pages/Quest';
+import Achievement from './assets/Pages/Achievement';
+
 export default class App extends React.Component {
   state = {
     page: 'Map',
@@ -50,7 +53,12 @@ export default class App extends React.Component {
     else if (page === 'Spotify') {
       currentPage = <Spotify data={this.state.infoCardData} navigate = {backToMap} navigate0 = {backToHistory}/>;
     }
-    
+    else if (page == "Achievement"){
+      currentPage = <Achievement/>
+    }
+    else if (page == "Quest"){
+      currentPage = <Quest/>
+    }
 
     return (
       <View style={styles.container}>
