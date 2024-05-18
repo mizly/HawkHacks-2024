@@ -6,7 +6,7 @@ import Profile from './assets/Pages/Profile';
 import MapComponent from './assets/Pages/Map';
 import Header from './assets/Pages/Header';
 import Spotify from './assets/Pages/Spotify';
-import Quest from './assets/Pages/Quest';
+import Rewards from './assets/Pages/Rewards';
 import Achievement from './assets/Pages/Achievement';
 
 export default class App extends React.Component {
@@ -56,8 +56,8 @@ export default class App extends React.Component {
     else if (page == "Achievement"){
       currentPage = <Achievement/>
     }
-    else if (page == "Quest"){
-      currentPage = <Quest/>
+    else if (page == "Rewards"){
+      currentPage = <Rewards/>
     }
 
     return (
