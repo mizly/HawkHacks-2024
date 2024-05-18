@@ -9,8 +9,9 @@ class User:
         self.levelXP = levelXP
 
 def addUser(User):
-    db.POST("CommUnity", "Players", {"Username":User.userName,"Name":User.name, "Achievements":User.achievements, "Location History":User.locationHistory, "Friends List":User.friendsList, "XP":User.levelXP})
+    db.POST("CommUnity", "Players", {"username":User.userName,"name":User.name, "achievements":User.achievements, "location_history":User.locationHistory, "friends":User.friendsList, "xp":User.levelXP})
 
 
 p1 = User("Johnny", "JohnBoi7", {"A_1":0, "A_2":1}, ["Mum's house"], ["XXbbXX", "Spy"], 10)
 addUser(p1)
+print(db.GET("CommUnity", "Players"))
