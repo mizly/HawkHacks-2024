@@ -75,7 +75,7 @@ export default function Profile({ navigation }) {
                 <Text style={styles.level}>{Math.floor(data.xp / 100) || 1}</Text>
               </View>
               <View style={styles.xpBar}>
-                <ProgressBar progress={(data.xp % 100 || 0) / 100} width={300} height={20} borderRadius={20} color={'#6C5CE7'} />
+                <ProgressBar progress={(data.xp % 100 || 0) / 100} width={300} height={20} borderRadius={20} color={'#00ADB5'} />
                 <Text style={styles.xpText}>{`${data.xp % 100}/100` || "50/100"}</Text>
               </View>
             </View>
@@ -91,6 +91,9 @@ export default function Profile({ navigation }) {
                   >
                     <Image source={{ uri: friend.document.profile_pic }} style={styles.friendImage} />
                     <Text style={styles.friendName}>{friend.document.name || "Friend"}</Text>
+                    <View style={styles.friendLevelCircle}>
+                <Text style={styles.level}>{Math.floor(data.xp / 100) || 1}</Text>
+              </View>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -106,7 +109,7 @@ export default function Profile({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#eee',
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
@@ -182,6 +185,25 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
+  friendLevelCircle: {
+    width: 50,
+    height: 50,
+    borderRadius: 40,
+    borderWidth: 5,
+    borderColor: '#F7BD45',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    zIndex: 1,
+    marginRight: 0,  // Adjusted to remove negative margin
+    marginLeft: 'auto',  // Added to push the element to the right
+    backgroundColor: '#FEEC65',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+},
   level: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -197,8 +219,8 @@ const styles = StyleSheet.create({
   },
   descriptionContainer: {
     padding: 20,
-    backgroundColor: '#21264a',
-    borderRadius: 25,
+    backgroundColor: '#222831',
+    borderRadius: 0,
     marginTop: 30,
     width: '100%',
     paddingTop: 30,
@@ -219,12 +241,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 5,
+    color: ""
   },
   friend: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
-    backgroundColor: '#6580eb',
+    backgroundColor: '#00ADB5',
     borderRadius: 15,
     paddingHorizontal: 10,
     paddingVertical: 5,
@@ -240,12 +263,12 @@ const styles = StyleSheet.create({
   friendName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#ede3da',
+    color: '#eeeeee',
   },
   headerText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#ede3da',
+    color: '#eeeeee',
     textAlign: 'left',
     marginTop: -10,
     marginLeft: 20
