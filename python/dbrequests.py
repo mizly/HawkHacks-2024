@@ -5,31 +5,33 @@ import os
 
 load_dotenv(".env")
 api_key = os.getenv("MONGODB_API_KEY")
+CLUSTER = os.getenv("MONGODB_CLUSTER")
+BASE_URL = os.getenv("MONGODB_URL")
 
 def GET(database,collection):
-    url = "https://us-east-1.aws.data.mongodb-api.com/app/data-sikvi/endpoint/data/v1/action/find"
+    url = f"{BASE_URL}/action/find"
 
     payload = json.dumps({
         "collection": f"{collection}",
         "database": f"{database}",
-        "dataSource": "DeerHacks2024",
+        "dataSource": f"{CLUSTER}",
         "projection": None
     })
     headers = {
       'Content-Type': 'application/json',
       'Access-Control-Request-Headers': '*',
-      'api-key': f'{api_key}',
+      'api-key': f'{api_key}'
     }
 
     return requests.request("POST", url, headers=headers, data=payload).json()
 
 def GETbyID(database,collection,id):
-    url = "https://us-east-1.aws.data.mongodb-api.com/app/data-sikvi/endpoint/data/v1/action/findOne"
+    url = f"{BASE_URL}/action/findOne"
 
     payload = json.dumps({
         "collection": f"{collection}",
         "database": f"{database}",
-        "dataSource": "DeerHacks2024",
+        "dataSource": f"{CLUSTER}",
         "filter": {
             "_id": {"$oid": id}
         },
@@ -44,12 +46,12 @@ def GETbyID(database,collection,id):
     return requests.request("POST", url, headers=headers, data=payload).json()
 
 def POST(database, collection, data):
-    url = "https://us-east-1.aws.data.mongodb-api.com/app/data-sikvi/endpoint/data/v1/action/insertOne"
+    url = f"{BASE_URL}/action/insertOne"
 
     payload = {
         "collection": collection,
         "database": database,
-        "dataSource": "DeerHacks2024",
+        "dataSource": f"{CLUSTER}",
         "document": data  # Add the data you want to write to the database
     }
 
@@ -70,12 +72,12 @@ def POST(database, collection, data):
 
 
 def PATCH(database, collection, filter_data, update_data):
-    url = "https://us-east-1.aws.data.mongodb-api.com/app/data-sikvi/endpoint/data/v1/action/updateOne"
+    url = f"{BASE_URL}/action/updateOne"
 
     payload = {
         "collection": collection,
         "database": database,
-        "dataSource": "DeerHacks2024",
+        "dataSource": f"{CLUSTER}",
         "filter": filter_data,  # Specify the filter for the document to update
         "update": update_data   # Specify the update operation to perform
     }

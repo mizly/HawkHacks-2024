@@ -13,3 +13,4 @@ def addUser(User):
 
 p1 = User("VU", "yolooshawott", {"A_1":0, "A_2":1}, ["Vus Mum's house"], ["BBL Drizzy", "K NOT"])
 addUser(p1)
+print(db.GET("CommUnity", "Players"))
