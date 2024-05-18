@@ -4,9 +4,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv("hh2024.env")
-print(os.getenv("API_KEY"))
-api_key = "uN5a52qg3b50g9uIJBUZO2YFrZP9dZuo3W8mGi2Gk9DivUa1kjXAFlXF0BzbTLid"
-
+api_key = os.getenv("MONGODB_API_KEY")
 
 def GET(database,collection):
     url = "https://us-east-1.aws.data.mongodb-api.com/app/data-sikvi/endpoint/data/v1/action/find"
@@ -79,4 +77,4 @@ def PATCH(database, collection, filter_data, update_data):
     
 
 
-    
+print(GET("CommUnity", "Players"))
