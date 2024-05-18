@@ -8,7 +8,7 @@ const HomePage = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>This is the Quest page!</Text>
+      <Text style={styles.title}>This is the Rewards page!</Text>
       <Button title="Click Me" onPress={handlePress} />
     </View>
   );
