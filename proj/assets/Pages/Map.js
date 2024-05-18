@@ -1,11 +1,55 @@
 import React, { useRef, useState, useEffect } from 'react';
 import MapView, { Marker } from 'react-native-maps';
-import { StyleSheet, View, Modal, ScrollView, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, View, Modal, ScrollView, TouchableOpacity, Text, TextInput, Animated } from 'react-native';
 import * as Location from 'expo-location';
 import Svg, {Path} from "react-native-svg";
 import ProgressBar from 'react-native-progress/Bar';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+
+
+
+const Autocomplete = ({ searchText, onSelect, lat, lng }) => {
+  const [suggestions, setSuggestions] = useState([]);
+
+  useEffect(() => {
+    if (searchText) {
+      fetchSuggestions(searchText, lat, lng);
+    } else {
+      setSuggestions([]);
+    }
+  }, [searchText]);
+
+  const fetchSuggestions = async (text, lat, lng) => {
+    try {
+      const BASE_URL = 'http://127.0.0.1:5000/autocomplete';
+      const COORDINATES = `${lat},${lng}`;
+      const API_URL = `${BASE_URL}/${text}/${COORDINATES}`;
+      console.log(API_URL);
+      const response = await fetch(API_URL);
+      const result = await response.json();
+      console.log(result);
+      setSuggestions(result);
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+    }
+  };
+
+  const handleSelectSuggestion = (suggestion) => {
+    onSelect(suggestion);
+    setSuggestions([]);
+  };
+
+  return (
+    <ScrollView style={{ maxHeight: 150 }}>
+      {suggestions.map((suggestion, index) => (
+        <TouchableOpacity key={index} onPress={() => handleSelectSuggestion(suggestion)}>
+          <Text>{suggestion}</Text>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
+  );
+};
 
 export default function MapComponent(props) {
   const [latitude, setLatitude] = useState(0);
@@ -15,25 +59,31 @@ export default function MapComponent(props) {
   const [isTasksVisible, setIsTasksVisible] = useState(false);
   const [isInfoVisible, setIsInfoVisible] = useState(false);
   const [neighbourhood, setNeighbourhood] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchBarPosition = useRef(new Animated.Value(0)).current;
+  const suggestionsPosition = useRef(new Animated.Value(0)).current;
+  const [searchText, setSearchText] = useState('');
+  const [selectedSuggestion, setSelectedSuggestion] = useState('');
+
   const passback = (lat,lng) => props.navigate(lat,lng);
   const navigateToInfoCard = () => {
-    passback(latitude,longitude);
+    passback(latitude, longitude);
   }
   
-  useEffect(() => {
-    const fetchNeighbourhood = async () => {
-      try {
-        const response = await axios.get(`http://100.67.202.66:6450/get_location?lat=${latitude}&long=${longitude}`);
-        setNeighbourhood(response.data.location[0]);
-      } catch (error) {
-        console.error('Error fetching neighbourhood:', error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchNeighbourhood = async () => {
+  //     try {
+  //       const response = await axios.get(`http://100.67.202.66:6450/get_location?lat=${latitude}&long=${longitude}`);
+  //       setNeighbourhood(response.data.location[0]);
+  //     } catch (error) {
+  //       console.error('Error fetching neighbourhood:', error);
+  //     }
+  //   };
 
-    if (latitude !== 0 && longitude !== 0) {
-      fetchNeighbourhood();
-    }
-  }, [latitude, longitude]);
+  //   if (latitude !== 0 && longitude !== 0) {
+  //     fetchNeighbourhood();
+  //   }
+  // }, [latitude, longitude]);
 
   const toggleTasks = () => {
     setIsTasksVisible(!isTasksVisible);
@@ -43,8 +93,9 @@ export default function MapComponent(props) {
     setIsInfoVisible(!isInfoVisible);
   };
 
-  const handleLocationButtonClick = () => {
-    getLocation();
+  const handleSelectSuggestion = (suggestion) => {
+    setSearchText(suggestion);
+    // get business details or smt
   };
 
   const getLocation = async () => {
@@ -66,15 +117,61 @@ export default function MapComponent(props) {
         1500 // duration in milliseconds
       );
 
-      // Delay the modal pop-up by 2.5 seconds after zoom
-      setTimeout(() => {
-        setIsInfoVisible(true);
-      }, 2500);
+      // // Delay the modal pop-up by 2.5 seconds after zoom
+      // setTimeout(() => {
+      //   setIsInfoVisible(true);
+      // }, 2500);
     }
   }
 
+  const handleSearchFocus = () => {
+    getLocation();
+    setIsSearchFocused(true);
+    Animated.timing(searchBarPosition, {
+      toValue: -500,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+
+    Animated.timing(suggestionsPosition, {
+      toValue: -150,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleSearchBlur = () => {
+    setIsSearchFocused(false);
+    Animated.timing(searchBarPosition, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+
+    Animated.timing(suggestionsPosition, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
   return (
     <View style={styles.container}>
+      <Animated.View style={[styles.searchContainer, { transform: [{ translateY: searchBarPosition }] }]}>
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search"
+          value={searchText}
+          onChangeText={setSearchText}
+          onFocus={handleSearchFocus}
+          onBlur={handleSearchBlur}
+        />
+      </Animated.View>
+
+      <Animated.View style={[styles.suggestionsContainer, { transform: [{ translateY: suggestionsPosition }] }]}>
+        <Autocomplete searchText={searchText} onSelect={(suggestion) => setSearchText(suggestion)} lat={latitude} lng={longitude} />
+      </Animated.View>
+
       <Modal
         visible={isTasksVisible}
         animationType="slide"
@@ -116,31 +213,31 @@ export default function MapComponent(props) {
       </Modal>
 
       <Modal
-      visible={isInfoVisible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={toggleInfo}
-    >
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-        <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, width: '80%', maxHeight: '50%' }}>
-          <ScrollView>
-            <TouchableOpacity onPress={toggleInfo} style={{alignSelf:'flex-end'}}>
-              <Svg onPress={toggleInfo} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <Path d="M3 12H21" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <Path d="M12 3L21 12L12 21" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </Svg>
-            </TouchableOpacity>
-            <Text style={{ fontSize: 30, textAlign: 'center', marginBottom: 2, fontWeight: 'bold' }}>Welcome to {neighbourhood}</Text>
-            <TouchableOpacity onPress={navigateToInfoCard} style={{ marginTop: 20, backgroundColor: '#234beb', borderRadius: 10, paddingVertical: 10 }}>
-              <Text style={{ color: '#fff', textAlign: 'center', fontSize: 16 }}>Learn More Now</Text>
-            </TouchableOpacity>
-          </ScrollView>
-          {/* <TouchableOpacity onPress={toggleInfo} style={{ marginTop: 20 }}>
-            <Text style={{ color: '#234beb', textAlign: 'center', fontSize: 16 }}>Close</Text>
-          </TouchableOpacity> */}
+        visible={isInfoVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={toggleInfo}
+      >
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+          <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, width: '80%', maxHeight: '50%' }}>
+            <ScrollView>
+              <TouchableOpacity onPress={toggleInfo} style={{alignSelf:'flex-end'}}>
+                <Svg onPress={toggleInfo} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <Path d="M3 12H21" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <Path d="M12 3L21 12L12 21" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </Svg>
+              </TouchableOpacity>
+              <Text style={{ fontSize: 30, textAlign: 'center', marginBottom: 2, fontWeight: 'bold' }}>Welcome to {neighbourhood}</Text>
+              <TouchableOpacity onPress={navigateToInfoCard} style={{ marginTop: 20, backgroundColor: '#234beb', borderRadius: 10, paddingVertical: 10 }}>
+                <Text style={{ color: '#fff', textAlign: 'center', fontSize: 16 }}>Learn More Now</Text>
+              </TouchableOpacity>
+            </ScrollView>
+            {/* <TouchableOpacity onPress={toggleInfo} style={{ marginTop: 20 }}>
+              <Text style={{ color: '#234beb', textAlign: 'center', fontSize: 16 }}>Close</Text>
+            </TouchableOpacity> */}
+          </View>
         </View>
-      </View>
-    </Modal>
+      </Modal>
 
       <View style={styles.mapContainer}>
         <MapView style={styles.map} ref={mapRef}>
@@ -178,13 +275,13 @@ export default function MapComponent(props) {
         <Text style={[styles.text, selectedButton === 'Location' && styles.selectedText]}>Location</Text>
       </TouchableOpacity> */}
 
-      <View style={styles.buttonContainer}>
+      {/* <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.button}
           onPress={handleLocationButtonClick}>
           <Text style={styles.text}>Find My Location</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
 
     </View>
   );
@@ -287,5 +384,49 @@ const styles = StyleSheet.create({
   progressText: {
     marginTop: 10,
     fontSize: 14,
+  },
+  searchContainer: {
+    position: 'absolute',
+    bottom: 100,
+    width: '90%',
+    alignSelf: 'center',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    zIndex: 1,
+  },
+  searchBar: {
+    height: 40,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    fontSize: 16,
+  },
+  suggestionsContainer: {
+    position: 'absolute',
+    bottom: 200,
+    width: '90%',
+    alignSelf: 'center',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    flex: 1,
+    zIndex: 1,
+  },
+  suggestion: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
   },
 });

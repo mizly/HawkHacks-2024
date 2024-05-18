@@ -3,7 +3,7 @@ import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
 import Svg, {Path} from "react-native-svg";
 
 export default function Footer({ onButtonPress }) {
-  const [selectedButton, setSelectedButton] = useState(null);
+  const [selectedButton, setSelectedButton] = useState('Map');
 
   const handleButtonPress = (buttonName) => {
     setSelectedButton(buttonName);
