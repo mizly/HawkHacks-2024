@@ -5,6 +5,7 @@ import os
 
 load_dotenv("hh2024.env")
 api_key = os.getenv("MONGODB_API_KEY")
+print(api_key)
 
 def GET(database,collection):
     url = "https://us-east-1.aws.data.mongodb-api.com/app/data-sikvi/endpoint/data/v1/action/find"
