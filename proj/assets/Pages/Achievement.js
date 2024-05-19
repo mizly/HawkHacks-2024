@@ -57,7 +57,7 @@ const Achievements = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#222831',
+    backgroundColor: '#798777',
     padding: 20,
   },
   headerText: {
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#00ADB5',
+    backgroundColor: '#A2B29F',
     borderRadius: 15,
     paddingHorizontal: 20,
     paddingVertical: 10,
