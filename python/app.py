@@ -3,7 +3,10 @@ import neureloRequests as db
 import businessrequests as br
 import base64
 from aistuff import generate_response
-from PIL import Image
+from vertexai.generative_models import (
+    Image
+)
+import io
 
 app = Flask(__name__)
 
@@ -11,30 +14,42 @@ app = Flask(__name__)
 def upload():
     try:
         # Retrieve the image data from the request
-        print(request.json)
         image_data = request.json['image']
         # Decode base64 encoded image data
-        image_data = base64.b64decode(image_data)
-        result = (generate_response([image_data,f"Location that the photo was taken in is {location}. Tell me what you see, tell me everything you know about the location in the image possibly including historical context."]))
+        image_bytes = (base64.b64decode(image_data))
 
+        with open("temp.jpg", 'wb') as f:
+            f.write(image_bytes)
+
+        image = Image.load_from_file("temp.jpg")
+        prompt = "Generate a description in 20 words or less."
+        # Call generate_response function with the file path of the saved image and a location description
+        contents = [image,prompt]
+        result = generate_response(contents)
 
         # Return success response
+        print(jsonify({'message': result}))
         return jsonify({'message': result})
+
     except Exception as e:
         # Return error response if something goes wrong
         return jsonify({'error': str(e)}), 500
 
 @app.route('/get_players')
 def get_players():
-    return db.GET("CommUnity", "Players")
+    return db.GET()
 
 @app.route('/get_player/<id>')
 def get_player(id):
-    return db.GETbyID("CommUnity", "Players", id)
+    return db.GET(id)
 
 @app.route('/search_business/<query>/<lat>/<lng>')
 def search_business(query, lat, lng):
     return br.search(query, lat, lng)
+
+@app.route('/search_nearby/<query>/<lat>/<lng>')
+def search_nearby(query, lat, lng):
+    return br.search_nearby(query, lat, lng)
 
 @app.route('/business_details/<business_id>')
 def business_details(business_id):

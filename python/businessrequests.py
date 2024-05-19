@@ -2,6 +2,7 @@ import requests
 import json
 from dotenv import load_dotenv
 import os
+import random
 
 load_dotenv(".env")
 API_KEY = os.getenv("RAPIDAPI_KEY")
@@ -21,6 +22,19 @@ def search(query, lat, lng, region="ca"):
     '''
     url = "https://local-business-data.p.rapidapi.com/search"
     querystring = {"query": query, "limit": "20", "lat": lat, "lng": lng, "zoom": "13", "language": "en", "region": region}
+
+    return requests.get(url, headers=headers, params=querystring).json()
+
+def search_nearby(query, lat, lng, region="ca"):
+    '''
+    Search for businesses based on a query and location
+    query: str, the search query
+    lat: float, latitude
+    lng: float, longitude
+    region: str, the region to search in
+    '''
+    url = "https://local-business-data.p.rapidapi.com/search"
+    querystring = {"query": query, "limit": "20", "lat": lat, "lng": lng, "language": "en", "region": region}
 
     return requests.get(url, headers=headers, params=querystring).json()
 

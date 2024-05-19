@@ -16,11 +16,11 @@ export default function FriendProfile({ route }) {
         const response = await fetch(`${BASE_URL}/${friendId}`);
         const result = await response.json();
 
-        if (!result.document) {
+        if (!result.data) {
           throw new Error('Data is empty :c');
         }
 
-        setFriendData(result.document);
+        setFriendData(result.data);
       } catch (error) {
         setError(error);
       } finally {

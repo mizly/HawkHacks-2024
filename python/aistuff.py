@@ -1,15 +1,8 @@
 import os
 import neureloRequests as db
-import base64
-import numpy as np
-import tempfile
 import http.client
 import typing
 import urllib.request
-import IPython.display
-from PIL import Image as PIL_image
-from PIL import ImageOps as PIL_image_ops
-import io
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "application_default_credentials.json"
 
@@ -43,29 +36,9 @@ def get_image_bytes_from_url(image_url: str) -> bytes:
     return image_bytes
 
 
-def display_images(
-    images: typing.Iterable[Image],
-    max_width: int = 600,
-    max_height: int = 350
-) -> None:
-    for image in images:
-        pil_image = typing.cast(PIL_image.Image, image._pil_image)
-        if pil_image.mode != "RGB":
-            # RGB is supported by all Jupyter environments (e.g. RGBA is not yet)
-            pil_image = pil_image.convert("RGB")
-        image_width, image_height = pil_image.size
-        if max_width < image_width or max_height < image_height:
-            # Resize to display a smaller notebook image
-            pil_image = PIL_image_ops.contain(pil_image, (max_width, max_height))
-        IPython.display.display(pil_image)
-
 def load_image_from_url(image_url: str) -> Image:
     image_bytes = get_image_bytes_from_url(image_url)
     return Image.from_bytes(image_bytes)
-
-# Load from local file
-def loadImage(image):
-    
 
 #print(image)
 
@@ -80,9 +53,9 @@ generation_config = GenerationConfig(
 )
 
 safety_settings = {
-    HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
-    HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
-    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+    HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+    HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
 }
 
 def generate_response(prompt):
@@ -93,5 +66,3 @@ def generate_response(prompt):
         stream=False
     )
     return responses.text
-location = "Kitchener,Ontario"
-#print(generate_response([image,f"Location that the photo was taken in is {location}. Tell me what you see, tell me everything you know about the location in the image possibly including historical context."]))

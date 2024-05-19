@@ -19,18 +19,18 @@ export default function Profile({ navigation }) {
         const response = await fetch(API_URL);
         const result = await response.json();
 
-        if (!result.document) {
+        if (!result.data) {
           throw new Error('Data is empty :c');
         }
 
         const friendsDetails = await Promise.all(
-          result.document.friends.map(async (friendId) => {
+          result.data.friends.map(async (friendId) => {
             const friendResponse = await fetch(`${BASE_URL}/${friendId}`);
             return await friendResponse.json();
           })
         );
 
-        setData(result.document);
+        setData(result.data);
         setFriendsData(friendsDetails);
       } catch (error) {
         setError(error);
@@ -87,10 +87,13 @@ export default function Profile({ navigation }) {
                   <TouchableOpacity
                     key={index}
                     style={styles.friend}
-                    onPress={() => navigation.navigate('FriendProfile', { friendId: friend.document._id })}
+                    onPress={() => {
+                      console.log(friend.data); // Log friend.data when TouchableOpacity is pressed
+                      navigation.navigate('FriendProfile', { friendId: friend.data.id });
+                    }}
                   >
-                    <Image source={{ uri: friend.document.profile_pic }} style={styles.friendImage} />
-                    <Text style={styles.friendName}>{friend.document.name || "Friend"}</Text>
+                    <Image source={{ uri: friend.data.profile_pic }} style={styles.friendImage} />
+                    <Text style={styles.friendName}>{friend.data.name || "Friend"}</Text>
                     <View style={styles.friendLevelCircle}>
                 <Text style={styles.level}>{Math.floor(data.xp / 100) || 1}</Text>
               </View>

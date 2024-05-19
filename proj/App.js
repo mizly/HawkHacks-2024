@@ -44,7 +44,7 @@ function MainStack({ navigation }) {
   } else if (page === 'Achievement') {
     currentPage = <Achievement />;
   } else if (page === 'Camera') {
-    currentPage = <Camera />;
+    currentPage = <Camera/>;
   }
 
   return (
@@ -62,6 +62,8 @@ export default function App() {
       <Stack.Navigator initialRouteName="Main">
         <Stack.Screen name="Main" component={MainStack} options={{ headerShown: false }} />
         <Stack.Screen name="FriendProfile" component={FriendProfile} />
+        <Stack.Screen name="Camera" component={Camera} />
+        <Stack.Screen name="MapMain" component={Map}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
