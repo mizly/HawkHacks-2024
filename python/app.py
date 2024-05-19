@@ -44,11 +44,11 @@ def upload():
 
 @app.route('/get_players')
 def get_players():
-    return db.GET("CommUnity", "Players")
+    return db.GET()
 
 @app.route('/get_player/<id>')
 def get_player(id):
-    return db.GETbyID("CommUnity", "Players", id)
+    return db.GET(id)
 
 @app.route('/search_business/<query>/<lat>/<lng>')
 def search_business(query, lat, lng):
