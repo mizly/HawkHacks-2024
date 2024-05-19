@@ -35,7 +35,7 @@ def PATCH(id,data):
     }
 
     # Send a POST request to update data in the database
-    response = requests.post(url, headers=headers, data=json.dumps(data))
+    response = requests.patch(url, headers=headers, data=json.dumps(data))
 
     # Check if the request was successful
     if response.status_code == 200 or response.status_code == 201:
@@ -43,4 +43,3 @@ def PATCH(id,data):
     else:
         return f"Error: {response.status_code}"
     
-print(GET())
