@@ -7,6 +7,7 @@ import ProgressBar from 'react-native-progress/Bar';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { Image } from 'react-native';
+import { BASE_URL } from './config';
 
 const Autocomplete = ({ searchText, onSelect, lat, lng }) => {
   const [suggestions, setSuggestions] = useState([]);
@@ -22,9 +23,8 @@ const Autocomplete = ({ searchText, onSelect, lat, lng }) => {
       return;
   }
     try {
-      const BASE_URL = 'http://192.168.2.13:5000/autocomplete';
       const COORDINATES = `${lat},${lng}`;
-      const API_URL = `${BASE_URL}/${text}/${COORDINATES}`;
+      const API_URL = `${BASE_URL}/autocomplete/${text}/${COORDINATES}`;
       console.log(API_URL);
       const response = await fetch(API_URL);
 

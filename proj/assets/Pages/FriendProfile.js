@@ -1,8 +1,9 @@
 // FriendProfile.js
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, ActivityIndicator } from 'react-native';
-
-const BASE_URL = 'http://172.20.10.3:5000/get_player';
+import { BASE_URL } from './config';
+import { PLAYER_ID } from './config';
+const API_URL = `${BASE_URL}/get_player/`;
 
 export default function FriendProfile({ route }) {
   const { friendId } = route.params;
@@ -13,7 +14,7 @@ export default function FriendProfile({ route }) {
   useEffect(() => {
     const fetchFriendData = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/${friendId}`);
+        const response = await fetch(`${API_URL}/${friendId}`);
         const result = await response.json();
 
         if (!result.data) {
