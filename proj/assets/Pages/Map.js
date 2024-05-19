@@ -91,7 +91,7 @@ export default function MapComponent(props) {
           setLocStatus(true);
           setLatitude(location.coords.latitude);
           setLongitude(location.coords.longitude);
-          const queries = ['restaurant', 'cafe', 'bar', 'groceries', 'gym', 'pub', 'market', 'bakeries', 'florists', 'pharmacies', 'asian cuisine', 'mediterranean cuisine', 'european cuisine', 'bookstores', 'clothing stores', 'electronics stores', 'furniture stores', 'jewelry stores', 'pet stores', 'shoe stores', 'video game stores']
+          const queries = ['restaurant', 'cafe', 'bar', 'groceries', 'gym', 'pub', 'art', 'landmark', 'hotel', 'park', 'fair', 'market', 'bakeries', 'florists', 'pharmacies', 'asian cuisine', 'mediterranean cuisine', 'middle eastern cuisine', 'european cuisine', 'bookstores', 'clothing stores', 'electronics stores', 'furniture stores', 'jewelry stores', 'pet stores', 'shoe stores', 'video game stores']
           const index = Math.floor(Math.random() * queries.length);
           const API_URL = `${BASE_URL}/search_nearby/${queries[index]}/${location.coords.latitude}/${location.coords.longitude}`;
           console.log(API_URL);
