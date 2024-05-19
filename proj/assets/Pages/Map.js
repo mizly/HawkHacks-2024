@@ -91,8 +91,7 @@ export default function MapComponent(props) {
           setLongitude(location.coords.longitude);
           const queries = ['restaurant', 'cafe', 'bar', 'groceries', 'gym', 'pub', 'market', 'bakeries', 'florists', 'pharmacies', 'asian cuisine', 'mediterranean cuisine', 'european cuisine', 'bookstores', 'clothing stores', 'electronics stores', 'furniture stores', 'jewelry stores', 'pet stores', 'shoe stores', 'video game stores']
           const index = Math.floor(Math.random() * queries.length);
-          const BASE_URL = 'http://192.168.2.13:5000/search_nearby';
-          const API_URL = `${BASE_URL}/${queries[index]}/${location.coords.latitude}/${location.coords.longitude}`;
+          const API_URL = `${BASE_URL}/search_nearby/${queries[index]}/${location.coords.latitude}/${location.coords.longitude}`;
           console.log(API_URL);
           const response = await fetch(API_URL);
 
@@ -286,9 +285,7 @@ export default function MapComponent(props) {
 
     mapRef.current.animateToRegion(region, 500);
     try {
-      const BASE_URL = 'http://192.168.2.13:5000/business_details';
-      const API_URL = `${BASE_URL}/${suggestion.place_id}}`;
-      const ORIGIN_URL = `http://192.168.2.13:5000/business_details/${suggestion.place_id}`
+      const ORIGIN_URL = `${BASE_URL}/business_details/${suggestion.place_id}`
       console.log(ORIGIN_URL);
       const response = await axios.get(ORIGIN_URL);
       console.log(response);
