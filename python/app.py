@@ -1,7 +1,8 @@
 from flask import Flask, jsonify, request, url_for, redirect, json
-import dbrequests as db
+import neureloRequests as db
 import businessrequests as br
 import base64
+from aistuff import generate_response
 from PIL import Image
 
 app = Flask(__name__)
@@ -14,16 +15,11 @@ def upload():
         image_data = request.json['image']
         # Decode base64 encoded image data
         image_data = base64.b64decode(image_data)
-        print("meoirwmiweowhwio")
-        # Convert bytes data to PIL Image object
-        image = Image.open(io.BytesIO(image_data))
-        print("meow3r")
-        # Here you can process the image as needed, e.g., save it to disk, perform image recognition, etc.
-        # For example, to save the image to disk:
-        image.save('uploaded_image.jpg')
+        result = (generate_response([image_data,f"Location that the photo was taken in is {location}. Tell me what you see, tell me everything you know about the location in the image possibly including historical context."]))
+
 
         # Return success response
-        return jsonify({'message': 'Image uploaded successfully'})
+        return jsonify({'message': result})
     except Exception as e:
         # Return error response if something goes wrong
         return jsonify({'error': str(e)}), 500
