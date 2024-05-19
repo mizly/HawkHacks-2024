@@ -8,10 +8,10 @@ const Calendar = (props) => {
     const year = props.year;
     const month = props.month;
     const activeDates = {
-        'January' : [1,2,3],
-        'February' : [10,11,12], 
-        'March' : [31],
-        'April' : [],
+        'January' : [1,2,3,4,5,6,7,8,9,10,11,13,14,15,17,18,19,20,21,22,23],
+        'February' : [2,3,10,11,12,13,14,15,16,17,18,19,31], 
+        'March' : [14,21,31],
+        'April' : [1,2,3],
         'May' : [],
         'June' : [],
         'July' : [],
@@ -71,7 +71,6 @@ const Calendar = (props) => {
     const daysFe = Array(getFirstDayOfWeek(year,month)).fill(0).concat([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20 ,21,22,23,24,25,26,27,28,29])
     const passback = (arr) => props.clicked(arr);
     const handleClick = (m,y,d) =>{
-
     }
     
 

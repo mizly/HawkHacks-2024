@@ -78,6 +78,8 @@ export default function MapComponent(props) {
     passback(latitude, longitude);
   }
   
+
+  
   useEffect(() => {
     const fetchNearBusinesses = async () => {
       try {
