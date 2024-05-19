@@ -12,15 +12,6 @@ def upload():
         # Retrieve the image data from the request
         print(request.json)
         image_data = request.json['image']
-        # Decode base64 encoded image data
-        image_data = base64.b64decode(image_data)
-        print("meoirwmiweowhwio")
-        # Convert bytes data to PIL Image object
-        image = Image.open(io.BytesIO(image_data))
-        print("meow3r")
-        # Here you can process the image as needed, e.g., save it to disk, perform image recognition, etc.
-        # For example, to save the image to disk:
-        image.save('uploaded_image.jpg')
 
         # Return success response
         return jsonify({'message': 'Image uploaded successfully'})
