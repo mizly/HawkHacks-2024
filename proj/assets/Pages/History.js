@@ -1,48 +1,141 @@
-import React, { useState } from 'react';
-import { View, Text, Button, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, Text ,ScrollView } from 'react-native';
+import Calendar from './Calendar';
 
-const HomePage = ({ navigation }) => {
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState(null);
-
-  const handlePress = () => {
-    setLoading(true);
-    fetch('http://172.20.10.3:5000/get_player/6648ab4c3b52e76987d2333f')  // Replace with your API URL
-      .then(response => response.json())
-      .then(json => {
-        setLoading(false);
-        setData(json);
-        Alert.alert('API Call Success', 'Data fetched successfully');
-      })
-      .catch(error => {
-        setLoading(false);
-        Alert.alert('API Call Error', 'An error occurred while fetching data');
-        console.error(error);
-      });
-  };
+export default function History(props) {
+  const goBlue = (arr) =>{
+    passback(arr)
+  }
+  const passback = (arr) => props.onOrange(arr);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>This is the History page!</Text>
-      <Button title="Click Me" onPress={handlePress} />
-      {loading && <ActivityIndicator size="large" color="#0000ff" />}
-      {data && <Text>{JSON.stringify(data, null, 2)}</Text>}
-    </View>
+    <ScrollView 
+      contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={false} // Optionally hide the vertical scroll indicator
+    >
+      <View style = {styles.title}>
+            <Text style ={{fontWeight:700, fontSize: 30}}>History</Text>
+        </View>
+      <View style = {styles.calendarContainer}>
+        <Calendar
+          year= {2024}
+          month='January'
+          clicked = {(arr) => goBlue(arr)}
+        />
+      </View>
+      <View style = {styles.calendarContainer}>
+        <Calendar
+          year= {2024}
+          month='February'
+          clicked = {(arr) => goBlue(arr)}
+        />
+      </View>
+
+      <View style = {styles.calendarContainer}>
+        <Calendar
+      
+          year= {2024}
+          month='March'
+          clicked = {(arr) => goBlue(arr)}
+        />
+      </View>
+      <View style = {styles.calendarContainer}>
+        <Calendar
+          year= {2024}
+          month='April'
+          clicked = {(arr) => goBlue(arr)}
+        />
+      </View>
+      <View style = {styles.calendarContainer}>
+        <Calendar
+          year= {2024}
+          month='May'
+          clicked = {(arr) => goBlue(arr)}
+        />
+      </View>
+      <View style = {styles.calendarContainer}>
+        <Calendar
+          year= {2024}
+          month='June'
+          clicked = {(arr) => goBlue(arr)}
+        />
+      </View>
+      <View style = {styles.calendarContainer}>
+        <Calendar
+          year= {2024}
+          month='July'
+          clicked = {(arr) => goBlue(arr)}
+          
+        />
+      </View>
+      <View style = {styles.calendarContainer}>
+        <Calendar
+          year= {2024}
+          month='August'
+          clicked = {(arr) => goBlue(arr)}
+        />
+      </View>
+      <View style = {styles.calendarContainer}>
+        <Calendar
+          year= {2024}
+          month='September'
+          clicked = {(arr) => goBlue(arr)}
+        />
+      </View>
+      <View style = {styles.calendarContainer}>
+        <Calendar
+          year= {2024}
+          month='October'
+          clicked = {(arr) => goBlue(arr)}
+        />
+      </View>
+      <View style = {styles.calendarContainer}>
+        <Calendar
+          year= {2024}
+          month='November'
+          clicked = {(arr) => goBlue(arr)}
+        />
+      </View>
+      <View style = {styles.calendarContainer}>
+        <Calendar
+          year= {2024}
+          month='December'
+          clicked = {(arr) => goBlue(arr)}
+        />
+      </View>
+      
+    </ScrollView >
+    
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    flexGrow: 0,
+    alignItems:'center',
+    paddingTop:'10%',
+    paddingBottom:'30%',
+    backgroundColor:'#fffdef',
+  },
+  text: {
+    
+  },
+  calendarContainer:{
+    width:'90%',
+    paddingLeft:12,
+    backgroundColor:'white',
+    height: 380,
+    marginBottom:30,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    display:'flex',
+    justifyContent:'center',
+    alignItems:'center',
+    paddingTop: 30,
+    paddingBottom: 20,
   },
 });
-
-export default HomePage;

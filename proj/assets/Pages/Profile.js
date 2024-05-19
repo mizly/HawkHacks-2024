@@ -88,14 +88,14 @@ export default function Profile({ navigation }) {
                     key={index}
                     style={styles.friend}
                     onPress={() => {
-                      console.log(friend.data); // Log friend.data when TouchableOpacity is pressed
+                      console.log(friend.data.id); // Log friend.data when TouchableOpacity is pressed
                       navigation.navigate('FriendProfile', { friendId: friend.data.id });
                     }}
                   >
                     <Image source={{ uri: friend.data.profile_pic }} style={styles.friendImage} />
                     <Text style={styles.friendName}>{friend.data.name || "Friend"}</Text>
                     <View style={styles.friendLevelCircle}>
-                <Text style={styles.level}>{Math.floor(data.xp / 100) || 1}</Text>
+                <Text style={styles.level}>{Math.floor(friend.data.xp / 100) || 1}</Text>
               </View>
                   </TouchableOpacity>
                 ))}
