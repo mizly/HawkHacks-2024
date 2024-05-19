@@ -3,9 +3,6 @@ import neureloRequests as db
 import http.client
 import typing
 import urllib.request
-from PIL import Image as PIL_image
-from PIL import ImageOps as PIL_image_ops
-import io
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "application_default_credentials.json"
 
@@ -56,9 +53,9 @@ generation_config = GenerationConfig(
 )
 
 safety_settings = {
-    HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
-    HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
-    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+    HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+    HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
 }
 
 def generate_response(prompt):
@@ -69,5 +66,3 @@ def generate_response(prompt):
         stream=False
     )
     return responses.text
-location = "Kitchener,Ontario"
-#print(generate_response([image,f"Location that the photo was taken in is {location}. Tell me what you see, tell me everything you know about the location in the image possibly including historical context."]))

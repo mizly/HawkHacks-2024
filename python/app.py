@@ -3,9 +3,10 @@ import neureloRequests as db
 import businessrequests as br
 import base64
 from aistuff import generate_response
-from PIL import Image
+from vertexai.generative_models import (
+    Image
+)
 import io
-from tempfile import NamedTemporaryFile
 
 app = Flask(__name__)
 
@@ -15,24 +16,16 @@ def upload():
         # Retrieve the image data from the request
         image_data = request.json['image']
         # Decode base64 encoded image data
-        image_bytes = io.BytesIO(base64.b64decode(image_data))
-        print("cp1")
+        image_bytes = (base64.b64decode(image_data))
 
-        # Open the image using PIL
-        image = Image.open(image_bytes)
+        with open("temp.jpg", 'wb') as f:
+            f.write(image_bytes)
 
-        # Create a temporary file to save the image
-        with NamedTemporaryFile(suffix=".jpg", delete=False) as temp_file:
-            temp_file_path = temp_file.name
-            # Save the image to the temporary file
-            image.save(temp_file_path)
-
-        print("cp2")
-
+        image = Image.load_from_file("temp.jpg")
+        prompt = "Generate a description in 20 words or less."
         # Call generate_response function with the file path of the saved image and a location description
-        result = generate_response([temp_file_path, "Location that the photo was taken in is Kitchener. Tell me what you see, tell me everything you know about the location in the image possibly including historical context."])
-
-        print(result)
+        contents = [image,prompt]
+        result = generate_response(contents)
 
         # Return success response
         print(jsonify({'message': result}))

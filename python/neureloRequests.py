@@ -43,4 +43,3 @@ def PATCH(id,data):
     else:
         return f"Error: {response.status_code}"
     
-print(GET())
