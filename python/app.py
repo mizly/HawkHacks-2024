@@ -33,6 +33,10 @@ def search_business(query, lat, lng):
 def business_details(business_id):
     return br.get_business_details(business_id)
 
+@app.route('/business_photos/<business_id>')
+def business_photos(business_id):
+    return br.get_business_photos(business_id)
+
 @app.route('/autocomplete/<query>/<coordinates>')
 def autocomplete(query, coordinates):
     return br.autocomplete(query, coordinates)
