@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import MapView, { Marker } from 'react-native-maps';
-import { StyleSheet, View, Modal, ScrollView, TouchableOpacity, Text, TextInput, Animated } from 'react-native';
+import { StyleSheet, View, Modal, ScrollView, TouchableOpacity, Text, TextInput, Animated, Linking } from 'react-native';
 import * as Location from 'expo-location';
 import Svg, {Path} from "react-native-svg";
 import ProgressBar from 'react-native-progress/Bar';
@@ -63,6 +63,7 @@ export default function MapComponent(props) {
   const [selectedSuggestion, setSelectedSuggestion] = useState({});
   const [businessID, setBusinessID] = useState('');
   const [businessDetails, setBusinessDetails] = useState({});
+  const [businessPhotos, setBusinessPhotos] = useState([]);
   const locationIntervalRef = useRef(null);
 
   const passback = (lat,lng) => props.navigate(lat,lng);
@@ -130,6 +131,15 @@ export default function MapComponent(props) {
       (location) => {
         setLatitude(location.coords.latitude);
         setLongitude(location.coords.longitude);
+        // mapRef.current.animateToRegion(
+        //   {
+        //     latitude: location.coords.latitude,
+        //     longitude: location.coords.longitude,
+        //     latitudeDelta: 0.0922, // adjust these values as needed for zoom level
+        //     longitudeDelta: 0.0421, // adjust these values as needed for zoom level
+        //   },
+        //   1500 // duration in milliseconds
+        // );
         // console.log('Location updated:', location.coords); // disable if too annoying
       }
     );
@@ -180,14 +190,20 @@ export default function MapComponent(props) {
     setSelectedSuggestion(suggestion);
     setSearchText(suggestion.main_text);
     try {
-      const BASE_URL = 'http://192.168.2.13:5000/business_details';
-      const API_URL = `${BASE_URL}/${suggestion.place_id}}`;
-      console.log(API_URL);
-      const response = await fetch(API_URL);
-      console.log("response: ", response);
-      const result = await response.json();
-      console.log("result: ", result.data);
-      setBusinessDetails(result.data);
+      const BASE_URL1 = 'http://192.168.2.13:5000/business_details';
+      const API_URL1 = `${BASE_URL1}/${suggestion.place_id}}`;
+      console.log(API_URL1);
+      // const response1 = await fetch(API_URL1);
+      const response1 = await axios.get("http://192.168.2.13:5000/business_details/ChIJZQvOb6EEzkwRgN6UiFCEWtg");
+      setBusinessDetails(response1.data.data[0]);
+
+      // BASE_URL = 'http://192.168.2.13:5000/business_photos';
+      // API_URL = `${BASE_URL}/${suggestion.place_id}}`;
+      // console.log(API_URL);
+      // response = await fetch(API_URL);
+      // result = await response.json();
+      // console.log(result.data);
+      // setBusinessPhotos(result.data);
     } catch (error) {
       console.error('Error fetching suggestions:', error);
     }
@@ -266,9 +282,8 @@ export default function MapComponent(props) {
       >
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
           <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, width: '80%', maxHeight: '80%' }}>
-          {/* {businessDetails && (
+          {businessDetails && (
             <ScrollView>
-              {console.log(businessDetails)}
               <TouchableOpacity onPress={toggleInfo} style={{ alignSelf: 'flex-end' }}>
                 <Svg onPress={toggleInfo} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <Path d="M3 12H21" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -278,30 +293,31 @@ export default function MapComponent(props) {
 
               <Text style={{ fontSize: 30, textAlign: 'center', marginBottom: 10, fontWeight: 'bold' }}>{businessDetails.name}</Text>
 
-              <Text style={{ fontSize: 16, textAlign: 'center', marginBottom: 10 }}>{businessDetails.about.summary}</Text>
+              <Text style={{ fontSize: 16, textAlign: 'center', marginBottom: 10 }}>{businessDetails.rating} / 5 Stars</Text>
 
               <Text style={{ fontSize: 16, marginBottom: 10 }}>{businessDetails.address}</Text>
 
               <Text style={{ fontSize: 16, marginBottom: 10 }}>{businessDetails.opening_status}</Text>
-
-              {businessDetails.phone_number && (
-                <Text style={{ fontSize: 16, marginBottom: 10 }}>Phone: {businessDetails.phone_number}</Text>
-              )}
-              {businessDetails.emails_and_contacts.instagram && (
-                <Text style={{ fontSize: 16, marginBottom: 10 }}>Instagram: {businessDetails.emails_and_contacts.instagram}</Text>
-              )}
 
               <Text style={{ fontSize: 16, marginBottom: 10 }}>Rating: {businessDetails.rating}</Text>
               <TouchableOpacity onPress={() => Linking.openURL(businessDetails.reviews_link)}>
                 <Text style={{ color: '#234beb', fontSize: 16, marginBottom: 10 }}>Read Reviews</Text>
               </TouchableOpacity>
 
-              <Text style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>Additional Details</Text>
+              {businessDetails.phone_number && (
+                <Text style={{ fontSize: 16, marginBottom: 10 }}>Phone: {businessDetails.phone_number}</Text>
+              )}
+
+              <TouchableOpacity onPress={() => Linking.openURL(businessDetails.website)} style={{ marginTop: 20, backgroundColor: '#234beb', borderRadius: 10, paddingVertical: 10 }}>
+                <Text style={{ color: '#fff', textAlign: 'center', fontSize: 16 }}>Website</Text>
+              </TouchableOpacity>
+
+              {/* <Text style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>Additional Details</Text>
               <Text style={{ fontSize: 16 }}>Accessibility: {businessDetails.about.details.Accessibility}</Text>
               <Text style={{ fontSize: 16 }}>Payments: {businessDetails.about.details.Payments}</Text>
-              <Text style={{ fontSize: 16 }}>Service options: {businessDetails.about.details["Service options"]}</Text>
+              <Text style={{ fontSize: 16 }}>Service options: {businessDetails.about.details["Service options"]}</Text> */}
             </ScrollView>
-          )} */}
+          )}
           </View>
         </View>
       </Modal>

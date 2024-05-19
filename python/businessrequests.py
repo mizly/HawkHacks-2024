@@ -24,17 +24,25 @@ def search(query, lat, lng, region="ca"):
 
     return requests.get(url, headers=headers, params=querystring).json()
 
-def get_business_details(business_id):
+def get_business_details(business_id, region="ca"):
     '''
     Get details of a business based on its id
     business_id: str, the id of the business
     '''
-    url1 = "https://local-business-data.p.rapidapi.com/business-details"
-    url2 = "https://local-business-data.p.rapidapi.com/business-photos"
-    querystring1 = {"business_id": business_id, "extract_emails_and_contacts": "true", "extract_share_link": "true", "region": "us", "language": "en"}
-    querystring2 = {"business_id": business_id, "limit":"8", "region":"us"}
+    url = "https://local-business-data.p.rapidapi.com/business-details"
+    querystring = {"business_id": business_id, "extract_emails_and_contacts": "true", "extract_share_link": "false", "region": region, "language": "en"}
+    data = requests.get(url, headers=headers, params=querystring).json()
+    print(data)
+    return data
 
-    return requests.get(url1, headers=headers, params=querystring1).json(), requests.get(url2, headers=headers, params=querystring2).json()
+def get_business_photos(business_id, region="ca"):
+    '''
+    Get photos of a business based on its id
+    business_id: str, the id of the business
+    '''
+    url = "https://local-business-data.p.rapidapi.com/business-photos"
+    querystring = {"business_id": business_id, "limit": "4", "region": region}
+    return requests.get(url, headers=headers, params=querystring).json()
 
 def autocomplete(query, coordinates, region="ca"):
     '''
