@@ -2,6 +2,7 @@ import { useNavigation } from '@react-navigation/native'; // Import useNavigatio
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useState, useRef } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View, Alert, Modal } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import Svg, {Path} from "react-native-svg";
 import { BASE_URL } from './config';
 const API_URL = `${BASE_URL}/upload`;
@@ -82,10 +83,10 @@ export default function Camera(route) {
       <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Text style={styles.text}>Flip Camera</Text>
+          <MaterialIcons name="flip-camera-ios" size={48} color="#A2B29F" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={takePictureAndUpload}>
-            <Text style={styles.text}>Take Picture</Text>
+            <MaterialIcons name="camera-alt" size={48} color="#A2B29F" />
           </TouchableOpacity>
         </View>
       </CameraView>
@@ -120,7 +121,7 @@ export default function Camera(route) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
   },
   camera: {
     flex: 1,
@@ -128,16 +129,19 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 200,
+    paddingHorizontal: 30,
+    paddingVertical: 60,
     backgroundColor: 'transparent',
   },
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     borderRadius: 10,
-    padding: 10,
+    padding: 10, // Increased padding for larger touch area
+    width: '25%', // Adjust as needed
+    aspectRatio: 1, // Maintain square shape
+    elevation: 3, // Add elevation for shadow effect (Android only)
   },
   text: {
     fontSize: 18,

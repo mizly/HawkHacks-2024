@@ -45,7 +45,7 @@ export default function Profile({ navigation }) {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color="#A2B29F" />
       </View>
     );
   }
