@@ -47,6 +47,10 @@ def get_player(id):
 def search_business(query, lat, lng):
     return br.search(query, lat, lng)
 
+@app.route('/search_nearby/<query>/<lat>/<lng>')
+def search_nearby(query, lat, lng):
+    return br.search_nearby(query, lat, lng)
+
 @app.route('/business_details/<business_id>')
 def business_details(business_id):
     return br.get_business_details(business_id)

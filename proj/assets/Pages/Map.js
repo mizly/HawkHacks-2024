@@ -6,6 +6,7 @@ import Svg, {Path} from "react-native-svg";
 import ProgressBar from 'react-native-progress/Bar';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import { Image } from 'react-native';
 
 const Autocomplete = ({ searchText, onSelect, lat, lng }) => {
   const [suggestions, setSuggestions] = useState([]);
@@ -17,6 +18,9 @@ const Autocomplete = ({ searchText, onSelect, lat, lng }) => {
   }, [searchText]);
 
   const fetchSuggestions = async (text, lat, lng) => {
+    if (lat == null || lng == null) {
+      return;
+  }
     try {
       const BASE_URL = 'http://192.168.2.13:5000/autocomplete';
       const COORDINATES = `${lat},${lng}`;
@@ -53,9 +57,7 @@ export default function MapComponent(props) {
   const [latitude, setLatitude] = useState(0);
   const [longitude, setLongitude] = useState(0);
   const [locStatus, setLocStatus] = useState(false);
-  const [businessLatitude, setBusinessLatitude] = useState(0);
-  const [businessLongitude, setBusinessLongitude] = useState(0);
-  const [businessLocStatus, setBusinessLocStatus] = useState(false);
+  const [businessMarkers, setBusinessMarkers] = useState([]);
   const mapRef = useRef(null);
   const [isTasksVisible, setIsTasksVisible] = useState(false);
   const [isInfoVisible, setIsInfoVisible] = useState(false);
@@ -75,20 +77,65 @@ export default function MapComponent(props) {
     passback(latitude, longitude);
   }
   
-  // useEffect(() => {
-  //   const fetchNeighbourhood = async () => {
-  //     try {
-  //       const response = await axios.get(`http://100.67.202.66:6450/get_location?lat=${latitude}&long=${longitude}`);
-  //       setNeighbourhood(response.data.location[0]);
-  //     } catch (error) {
-  //       console.error('Error fetching neighbourhood:', error);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchNearBusinesses = async (lat, lng) => {
+      try {
+        const queries = ['restaurant', 'cafe', 'bar', 'groceries', 'gym', 'snacks', 'bakeries', 'florists', 'pharmacies', 'asian cuisine', 'mediterranean cuisine', 'european cuisine', 'bookstores', 'clothing stores', 'electronics stores', 'furniture stores', 'jewelry stores', 'pet stores', 'shoe stores', 'video game stores']
+        const index = Math.floor(Math.random() * queries.length);
+        const BASE_URL = 'http://192.168.2.13:5000/search_nearby';
+        const API_URL = `${BASE_URL}/${queries[index]}/${lat}/${lng}`;
+        console.log(API_URL);
+        const response = await fetch(API_URL);
 
-  //   if (latitude !== 0 && longitude !== 0) {
-  //     fetchNeighbourhood();
-  //   }
-  // }, [latitude, longitude]);
+        const result = await response.json();
+        // console.log(result.data);
+        const coordinatesList = result.data.map(item => ({
+          latitude: item.latitude,
+          longitude: item.longitude,
+          title: item.name,
+          description: item.address,
+        }));
+        setBusinessMarkers(coordinatesList);
+        let avgLatitude = 0;
+        let avgLongitude = 0;
+
+        coordinatesList.forEach(marker => {
+          avgLatitude += marker.latitude;
+          avgLongitude += marker.longitude;
+        });
+
+        avgLatitude /= coordinatesList.length;
+        avgLongitude /= coordinatesList.length;
+        
+        // Calculate distance between markers
+        let maxDistance = 0;
+        coordinatesList.forEach(marker1 => {
+          coordinatesList.forEach(marker2 => {
+            const distance = Math.sqrt(Math.pow(marker1.latitude - marker2.latitude, 2) + Math.pow(marker1.longitude - marker2.longitude, 2));
+            if (distance > maxDistance) {
+              maxDistance = distance;
+            }
+          });
+        });
+        
+        // Set map region to encompass all markers
+        let region = {
+          latitude: avgLatitude,
+          longitude: avgLongitude,
+          latitudeDelta: maxDistance * 1.2, // Adding some padding
+          longitudeDelta: maxDistance * 1.2,
+        };
+
+        mapRef.current.animateToRegion(region, 500);
+      } catch (error) {
+        console.error('Error fetching nearest businesses:', error);
+      }
+    };
+
+    if (latitude !== 0 && longitude !== 0) {
+      fetchNearBusinesses(latitude, longitude);
+    }
+  }, [latitude, longitude]);
 
   const toggleTasks = () => {
     setIsTasksVisible(!isTasksVisible);
@@ -193,16 +240,48 @@ export default function MapComponent(props) {
     console.log(suggestion);
     setSelectedSuggestion(suggestion);
     setSearchText(suggestion.main_text);
-    setBusinessLatitude(suggestion.latitude);
-    setBusinessLongitude(suggestion.longitude);
-    setBusinessLocStatus(true);
+    setBusinessMarkers([{ latitude: suggestion.latitude, longitude: suggestion.longitude, title: suggestion.main_text, description: suggestion.address}]);
+    let avgLatitude = 0;
+    let avgLongitude = 0;
+
+    updatedMarkers.forEach(marker => {
+      avgLatitude += marker.latitude;
+      avgLongitude += marker.longitude;
+    });
+
+    avgLatitude /= updatedMarkers.length;
+    avgLongitude /= updatedMarkers.length;
+    
+    // Calculate distance between markers
+    let maxDistance = 0;
+    updatedMarkers.forEach(marker1 => {
+      updatedMarkers.forEach(marker2 => {
+        const distance = Math.sqrt(Math.pow(marker1.latitude - marker2.latitude, 2) + Math.pow(marker1.longitude - marker2.longitude, 2));
+        if (distance > maxDistance) {
+          maxDistance = distance;
+        }
+      });
+    });
+    
+    // Set map region to encompass all markers
+    let region = {
+      latitude: avgLatitude,
+      longitude: avgLongitude,
+      latitudeDelta: maxDistance * 1.2, // Adding some padding
+      longitudeDelta: maxDistance * 1.2,
+    };
+
+    mapRef.current.animateToRegion(region, 500);
     try {
-      const BASE_URL1 = 'http://192.168.2.13:5000/business_details';
-      const API_URL1 = `${BASE_URL1}/${suggestion.place_id}}`;
-      console.log(API_URL1);
-      // const response1 = await fetch(API_URL1);
-      const response1 = await axios.get("http://192.168.2.13:5000/business_details/ChIJZQvOb6EEzkwRgN6UiFCEWtg");
-      setBusinessDetails(response1.data.data[0]);
+      const BASE_URL = 'http://192.168.2.13:5000/business_details';
+      const API_URL = `${BASE_URL}/${suggestion.place_id}}`;
+      const ORIGIN_URL = `http://192.168.2.13:5000/business_details/${suggestion.place_id}`
+      console.log(ORIGIN_URL);
+      const response = await axios.get(ORIGIN_URL);
+      console.log(response);
+      setBusinessDetails(response.data.data[0]);
+
+      
 
       // BASE_URL = 'http://192.168.2.13:5000/business_photos';
       // API_URL = `${BASE_URL}/${suggestion.place_id}}`;
@@ -337,20 +416,22 @@ export default function MapComponent(props) {
                 latitude: latitude,
                 longitude: longitude,
               }}
-              title="Marker Title"
-              description="Marker Description"
-            />
+              title="Me"
+              description="My location">
+                <Image source={require('../marker.webp')} style={{ width: 50, height: 50 }} />
+            </Marker>
           ) : null}
-          {businessLocStatus ? (
+          {businessMarkers.map((marker, index) => (
             <Marker
+              key={index}
               coordinate={{
-                latitude: businessLatitude,
-                longitude: businessLongitude,
+                latitude: marker.latitude,
+                longitude: marker.longitude,
               }}
-              title="Marker Title"
-              description="Marker Description"
+              title={marker.title || 'Business'}
+              description={marker.description}
             />
-          ) : null}
+          ))}
         </MapView>
       </View>
       <View style={styles.taskButtonContainer}>
