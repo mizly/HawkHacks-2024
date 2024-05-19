@@ -7,10 +7,6 @@ import ProgressBar from 'react-native-progress/Bar';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 
-/*
-name, name, name
-*/
-
 const Autocomplete = ({ searchText, onSelect, lat, lng }) => {
   const [suggestions, setSuggestions] = useState([]);
 
@@ -39,7 +35,7 @@ const Autocomplete = ({ searchText, onSelect, lat, lng }) => {
   };
 
   return (
-    <ScrollView style={{ maxHeight: 150 }}>
+    <ScrollView styles={{minHeight: 120, maxHeight: 150}}>
       {suggestions && suggestions.map((suggestion, index) => (
         <View key={index} style={styles.suggestionBox}>
           <TouchableOpacity key={index} onPress={() => handleSelectSuggestion(suggestion.main_text)}>
@@ -135,8 +131,8 @@ export default function MapComponent(props) {
     }).start();
 
     Animated.timing(suggestionsPosition, {
-      toValue: -660,
-      duration: 300,
+      toValue: -150,
+      duration: 500,
       useNativeDriver: true,
     }).start();
   };
@@ -169,9 +165,11 @@ export default function MapComponent(props) {
         />
       </Animated.View>
 
-      <Animated.View style={[styles.suggestionsContainer, { transform: [{ translateY: suggestionsPosition }] }]}>
-        <Autocomplete searchText={searchText} onSelect={(suggestion) => setSearchText(suggestion)} lat={latitude} lng={longitude} />
-      </Animated.View>
+      {searchText !== '' && (
+        <Animated.View style={[ styles.suggestionsContainer, { transform: [{ translateY: suggestionsPosition }] }]}>
+          <Autocomplete searchText={searchText} onSelect={(suggestion) => setSearchText(suggestion)} lat={latitude} lng={longitude} />
+        </Animated.View>
+      )}
 
       <Modal
         visible={isTasksVisible}
@@ -411,7 +409,7 @@ const styles = StyleSheet.create({
   },
   suggestionsContainer: {
     position: 'absolute',
-    bottom: -100,
+    top: 400,
     width: '90%',
     alignSelf: 'center',
     backgroundColor: 'white',
@@ -424,6 +422,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     flex: 1,
     zIndex: 1,
+    maxHeight: 280,
   },
   suggestion: {
     padding: 10,
