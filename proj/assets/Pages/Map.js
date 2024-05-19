@@ -38,7 +38,7 @@ const Autocomplete = ({ searchText, onSelect, lat, lng }) => {
     <ScrollView styles={{minHeight: 120, maxHeight: 150}}>
       {suggestions && suggestions.map((suggestion, index) => (
         <View key={index} style={styles.suggestionBox}>
-          <TouchableOpacity key={index} onPress={() => handleSelectSuggestion(suggestion.main_text)}>
+          <TouchableOpacity key={index} onPress={() => handleSelectSuggestion(suggestion)}>
             <Text>{suggestion.main_text}</Text>
             <Text>{suggestion.secondary_text}</Text>
           </TouchableOpacity>
@@ -60,7 +60,10 @@ export default function MapComponent(props) {
   const searchBarPosition = useRef(new Animated.Value(0)).current;
   const suggestionsPosition = useRef(new Animated.Value(0)).current;
   const [searchText, setSearchText] = useState('');
-  const [selectedSuggestion, setSelectedSuggestion] = useState('');
+  const [selectedSuggestion, setSelectedSuggestion] = useState({});
+  const [businessID, setBusinessID] = useState('');
+  const [businessDetails, setBusinessDetails] = useState({});
+  const locationIntervalRef = useRef(null);
 
   const passback = (lat,lng) => props.navigate(lat,lng);
   const navigateToInfoCard = () => {
@@ -90,11 +93,6 @@ export default function MapComponent(props) {
     setIsInfoVisible(!isInfoVisible);
   };
 
-  const handleSelectSuggestion = (suggestion) => {
-    setSearchText(suggestion);
-    // get business details or smt
-  };
-
   const getLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
@@ -113,11 +111,6 @@ export default function MapComponent(props) {
         },
         1500 // duration in milliseconds
       );
-
-      // // Delay the modal pop-up by 2.5 seconds after zoom
-      // setTimeout(() => {
-      //   setIsInfoVisible(true);
-      // }, 2500);
     }
   }
 
@@ -137,7 +130,7 @@ export default function MapComponent(props) {
       (location) => {
         setLatitude(location.coords.latitude);
         setLongitude(location.coords.longitude);
-        console.log('Location updated:', location.coords);
+        // console.log('Location updated:', location.coords); // disable if too annoying
       }
     );
   };
@@ -182,6 +175,30 @@ export default function MapComponent(props) {
     }).start();
   };
 
+  const handleSuggestion = async (suggestion) => {
+    console.log(suggestion);
+    setSelectedSuggestion(suggestion);
+    setSearchText(suggestion.main_text);
+    try {
+      const BASE_URL = 'http://192.168.2.13:5000/business_details';
+      const API_URL = `${BASE_URL}/${suggestion.place_id}}`;
+      console.log(API_URL);
+      const response = await fetch(API_URL);
+      console.log("response: ", response);
+      const result = await response.json();
+      console.log("result: ", result.data);
+      setBusinessDetails(result.data);
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+    }
+    Animated.timing(searchBarPosition, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+    setIsInfoVisible(true);
+  }
+
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.searchContainer, { transform: [{ translateY: searchBarPosition }] }]}>
@@ -197,7 +214,7 @@ export default function MapComponent(props) {
 
       {searchText !== '' && (
         <Animated.View style={[ styles.suggestionsContainer, { transform: [{ translateY: suggestionsPosition }] }]}>
-          <Autocomplete searchText={searchText} onSelect={(suggestion) => setSearchText(suggestion)} lat={latitude} lng={longitude} />
+          <Autocomplete searchText={searchText} onSelect={(suggestion) => handleSuggestion(suggestion)} lat={latitude} lng={longitude} />
         </Animated.View>
       )}
 
@@ -248,22 +265,43 @@ export default function MapComponent(props) {
         onRequestClose={toggleInfo}
       >
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-          <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, width: '80%', maxHeight: '50%' }}>
+          <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, width: '80%', maxHeight: '80%' }}>
+          {/* {businessDetails && (
             <ScrollView>
-              <TouchableOpacity onPress={toggleInfo} style={{alignSelf:'flex-end'}}>
+              {console.log(businessDetails)}
+              <TouchableOpacity onPress={toggleInfo} style={{ alignSelf: 'flex-end' }}>
                 <Svg onPress={toggleInfo} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <Path d="M3 12H21" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   <Path d="M12 3L21 12L12 21" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </Svg>
               </TouchableOpacity>
-              <Text style={{ fontSize: 30, textAlign: 'center', marginBottom: 2, fontWeight: 'bold' }}>Welcome to {neighbourhood}</Text>
-              <TouchableOpacity onPress={navigateToInfoCard} style={{ marginTop: 20, backgroundColor: '#234beb', borderRadius: 10, paddingVertical: 10 }}>
-                <Text style={{ color: '#fff', textAlign: 'center', fontSize: 16 }}>Learn More Now</Text>
+
+              <Text style={{ fontSize: 30, textAlign: 'center', marginBottom: 10, fontWeight: 'bold' }}>{businessDetails.name}</Text>
+
+              <Text style={{ fontSize: 16, textAlign: 'center', marginBottom: 10 }}>{businessDetails.about.summary}</Text>
+
+              <Text style={{ fontSize: 16, marginBottom: 10 }}>{businessDetails.address}</Text>
+
+              <Text style={{ fontSize: 16, marginBottom: 10 }}>{businessDetails.opening_status}</Text>
+
+              {businessDetails.phone_number && (
+                <Text style={{ fontSize: 16, marginBottom: 10 }}>Phone: {businessDetails.phone_number}</Text>
+              )}
+              {businessDetails.emails_and_contacts.instagram && (
+                <Text style={{ fontSize: 16, marginBottom: 10 }}>Instagram: {businessDetails.emails_and_contacts.instagram}</Text>
+              )}
+
+              <Text style={{ fontSize: 16, marginBottom: 10 }}>Rating: {businessDetails.rating}</Text>
+              <TouchableOpacity onPress={() => Linking.openURL(businessDetails.reviews_link)}>
+                <Text style={{ color: '#234beb', fontSize: 16, marginBottom: 10 }}>Read Reviews</Text>
               </TouchableOpacity>
+
+              <Text style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>Additional Details</Text>
+              <Text style={{ fontSize: 16 }}>Accessibility: {businessDetails.about.details.Accessibility}</Text>
+              <Text style={{ fontSize: 16 }}>Payments: {businessDetails.about.details.Payments}</Text>
+              <Text style={{ fontSize: 16 }}>Service options: {businessDetails.about.details["Service options"]}</Text>
             </ScrollView>
-            {/* <TouchableOpacity onPress={toggleInfo} style={{ marginTop: 20 }}>
-              <Text style={{ color: '#234beb', textAlign: 'center', fontSize: 16 }}>Close</Text>
-            </TouchableOpacity> */}
+          )} */}
           </View>
         </View>
       </Modal>
