@@ -2,8 +2,8 @@ import { useNavigation } from '@react-navigation/native'; // Import useNavigatio
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useState, useRef } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
-
-const BASE_URL = 'http://172.20.10.3:5000/upload';
+import { BASE_URL } from './config';
+const API_URL = `${BASE_URL}/upload`;
 
 export default function Camera() {
   const [facing, setFacing] = useState('back');
@@ -37,7 +37,7 @@ export default function Camera() {
         console.log('Photo captured.');
   
         // Make HTTP POST request to upload the image to the Flask API endpoint
-        const response = await fetch(BASE_URL, {
+        const response = await fetch(API_URL, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -3,9 +3,9 @@ import { StyleSheet, View, Text, Image, ImageBackground, ScrollView, ActivityInd
 import ProgressBar from 'react-native-progress/Bar';
 import Park from "../park.png";
 
-const BASE_URL = 'http://172.20.10.3:5000/get_player';
-const PLAYER_ID = "6648db43f07f2066e226e0b5";
-const API_URL = `${BASE_URL}/${PLAYER_ID}`;
+import { BASE_URL } from './config';
+import { PLAYER_ID } from './config';
+const API_URL = `${BASE_URL}/get_player/${PLAYER_ID}`;
 
 export default function Profile({ navigation }) {
   const [loading, setLoading] = useState(true);
@@ -25,7 +25,7 @@ export default function Profile({ navigation }) {
 
         const friendsDetails = await Promise.all(
           result.data.friends.map(async (friendId) => {
-            const friendResponse = await fetch(`${BASE_URL}/${friendId}`);
+            const friendResponse = await fetch(`${BASE_URL}/get_player/${friendId}`);
             return await friendResponse.json();
           })
         );
@@ -153,17 +153,32 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
+    shadowColor: '#111111',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
   },
   username: {
     fontSize: 12,
     fontWeight: 'normal',
     marginBottom: 10,
+    shadowColor: '#111111',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
   },
   xpText: {
     fontSize: 12,
     fontWeight: 'normal',
     marginLeft: 20,
-    marginTop: 5
+    marginTop: 5,
+    shadowColor: '#111111',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
   },
   xpContainer: {
     flexDirection: 'row',
