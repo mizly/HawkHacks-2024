@@ -7,26 +7,13 @@ import History from './assets/Pages/History';
 import Profile from './assets/Pages/Profile';
 import MapComponent from './assets/Pages/Map';
 import Header from './assets/Pages/Header';
-import Spotify from './assets/Pages/Spotify';
-import Rewards from './assets/Pages/Rewards';
-import Achievement from './assets/Pages/Achievement';
+import Rewards from './assets/Pages/Rewards';import Achievement from './assets/Pages/Achievement';
 import FriendProfile from './assets/Pages/FriendProfile';
 
 const Stack = createStackNavigator();
 
 function MainStack({ navigation }) {
   const [page, setPage] = React.useState('Map');
-  const [infoCardData, setInfoCardData] = React.useState(null);
-
-  const handlePassback = (lat, lng) => {
-    setPage('Spotify');
-    setInfoCardData(`http://100.67.202.66:6450/get_song?lat=${lat}&long=${lng}`);
-  };
-
-  const moveInfo = (arr) => {
-    setPage('Spotify');
-    setInfoCardData(arr);
-  };
 
   const backToMap = () => {
     setPage('Map');
@@ -61,7 +48,7 @@ function MainStack({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Header />
+      {/*<Header />*/}
       {currentPage}
       <Footer onButtonPress={setPage} />
     </View>
