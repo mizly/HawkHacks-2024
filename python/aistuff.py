@@ -1,5 +1,5 @@
 import os
-import dbrequests as db
+import neureloRequests as db
 import base64
 import numpy as np
 import tempfile
@@ -64,7 +64,9 @@ def load_image_from_url(image_url: str) -> Image:
     return Image.from_bytes(image_bytes)
 
 # Load from local file
-image = Image.load_from_file("temp.jpg")
+def loadImage(image):
+    
+
 #print(image)
 
 # Use a more deterministic configuration with a low temperature
@@ -92,4 +94,4 @@ def generate_response(prompt):
     )
     return responses.text
 location = "Kitchener,Ontario"
-print(generate_response([image,f"Location that the photo was taken in is {location}. Tell me what you see, tell me everything you know about the location in the image possibly including historical context."]))
+#print(generate_response([image,f"Location that the photo was taken in is {location}. Tell me what you see, tell me everything you know about the location in the image possibly including historical context."]))

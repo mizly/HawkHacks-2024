@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, Image, ImageBackground, ScrollView, ActivityInd
 import ProgressBar from 'react-native-progress/Bar';
 import Park from "../park.png";
 
-const BASE_URL = 'http://192.168.2.13:5000/get_player';
+const BASE_URL = 'http://172.20.10.3:5000/get_player';
 const PLAYER_ID = "6648db43f07f2066e226e0b5";
 const API_URL = `${BASE_URL}/${PLAYER_ID}`;
 

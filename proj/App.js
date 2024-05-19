@@ -7,7 +7,8 @@ import History from './assets/Pages/History';
 import Profile from './assets/Pages/Profile';
 import MapComponent from './assets/Pages/Map';
 import Header from './assets/Pages/Header';
-import Rewards from './assets/Pages/Rewards';import Achievement from './assets/Pages/Achievement';
+import Camera from './assets/Pages/Camera';
+import Achievement from './assets/Pages/Achievement';
 import FriendProfile from './assets/Pages/FriendProfile';
 
 const Stack = createStackNavigator();
@@ -42,8 +43,8 @@ function MainStack({ navigation }) {
     currentPage = <Spotify data={infoCardData} navigate={backToMap} navigate0={backToHistory} />;
   } else if (page === 'Achievement') {
     currentPage = <Achievement />;
-  } else if (page === 'Rewards') {
-    currentPage = <Rewards />;
+  } else if (page === 'Camera') {
+    currentPage = <Camera />;
   }
 
   return (

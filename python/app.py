@@ -1,21 +1,28 @@
 from flask import Flask, jsonify, request, url_for, redirect, json
-import dbrequests as db
+import neureloRequests as db
 import businessrequests as br
+import base64
+from aistuff import generate_response
+from PIL import Image
 
 app = Flask(__name__)
 
-response =     {
-        "latitude": "drake glazer",
-        "longitude": "h",
-        "location": "h",
-        "culture": "h",
-        "song_info": "h",
-        "history": "h"
-    }
+@app.route('/upload', methods=['POST'])
+def upload():
+    try:
+        # Retrieve the image data from the request
+        print(request.json)
+        image_data = request.json['image']
+        # Decode base64 encoded image data
+        image_data = base64.b64decode(image_data)
+        result = (generate_response([image_data,f"Location that the photo was taken in is {location}. Tell me what you see, tell me everything you know about the location in the image possibly including historical context."]))
 
-@app.route('/get_song')
-def get_song():
-    return response
+
+        # Return success response
+        return jsonify({'message': result})
+    except Exception as e:
+        # Return error response if something goes wrong
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/get_players')
 def get_players():
