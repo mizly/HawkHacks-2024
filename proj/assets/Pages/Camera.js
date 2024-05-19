@@ -5,7 +5,7 @@ import { Button, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-n
 import { BASE_URL } from './config';
 const API_URL = `${BASE_URL}/upload`;
 
-export default function Camera() {
+export default function Camera(route) {
   const [facing, setFacing] = useState('back');
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef(null); // Reference to the camera component
