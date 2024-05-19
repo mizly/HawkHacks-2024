@@ -23,6 +23,7 @@ const Autocomplete = ({ searchText, onSelect, lat, lng }) => {
       const API_URL = `${BASE_URL}/${text}/${COORDINATES}`;
       console.log(API_URL);
       const response = await fetch(API_URL);
+
       const result = await response.json();
       setSuggestions(result.data);
     } catch (error) {
@@ -52,6 +53,9 @@ export default function MapComponent(props) {
   const [latitude, setLatitude] = useState(0);
   const [longitude, setLongitude] = useState(0);
   const [locStatus, setLocStatus] = useState(false);
+  const [businessLatitude, setBusinessLatitude] = useState(0);
+  const [businessLongitude, setBusinessLongitude] = useState(0);
+  const [businessLocStatus, setBusinessLocStatus] = useState(false);
   const mapRef = useRef(null);
   const [isTasksVisible, setIsTasksVisible] = useState(false);
   const [isInfoVisible, setIsInfoVisible] = useState(false);
@@ -189,6 +193,9 @@ export default function MapComponent(props) {
     console.log(suggestion);
     setSelectedSuggestion(suggestion);
     setSearchText(suggestion.main_text);
+    setBusinessLatitude(suggestion.latitude);
+    setBusinessLongitude(suggestion.longitude);
+    setBusinessLocStatus(true);
     try {
       const BASE_URL1 = 'http://192.168.2.13:5000/business_details';
       const API_URL1 = `${BASE_URL1}/${suggestion.place_id}}`;
@@ -291,9 +298,9 @@ export default function MapComponent(props) {
                 </Svg>
               </TouchableOpacity>
 
-              <Text style={{ fontSize: 30, textAlign: 'center', marginBottom: 10, fontWeight: 'bold' }}>{businessDetails.name}</Text>
+              <Text style={{ fontSize: 32, textAlign: 'left', marginBottom: 10, fontWeight: 'bold', color: 'blue' }}>{businessDetails.name}</Text>
 
-              <Text style={{ fontSize: 16, textAlign: 'center', marginBottom: 10 }}>{businessDetails.rating} / 5 Stars</Text>
+              <Text style={{ fontSize: 16, textAlign: 'left', marginBottom: 10 }}>Rating {businessDetails.rating} out of 5.0</Text>
 
               <Text style={{ fontSize: 16, marginBottom: 10 }}>{businessDetails.address}</Text>
 
@@ -334,6 +341,16 @@ export default function MapComponent(props) {
               description="Marker Description"
             />
           ) : null}
+          {businessLocStatus ? (
+            <Marker
+              coordinate={{
+                latitude: businessLatitude,
+                longitude: businessLongitude,
+              }}
+              title="Marker Title"
+              description="Marker Description"
+            />
+          ) : null}
         </MapView>
       </View>
       <View style={styles.taskButtonContainer}>
@@ -348,7 +365,7 @@ export default function MapComponent(props) {
           </Svg>
         </TouchableOpacity>
       </View>
-{/* 
+  {/* 
       <TouchableOpacity
         style={[
           styles.button,
