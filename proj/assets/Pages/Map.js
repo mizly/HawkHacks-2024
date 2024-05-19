@@ -71,6 +71,7 @@ export default function MapComponent(props) {
   const [businessDetails, setBusinessDetails] = useState({});
   const [businessPhotos, setBusinessPhotos] = useState([]);
   const locationIntervalRef = useRef(null);
+  const [showCheckInButton, setShowCheckInButton] = useState(false);
 
   const passback = (lat,lng) => props.navigate(lat,lng);
   const navigateToInfoCard = () => {
@@ -78,66 +79,78 @@ export default function MapComponent(props) {
   }
   
   useEffect(() => {
-    const fetchNearBusinesses = async (lat, lng) => {
+    const fetchNearBusinesses = async () => {
       try {
-        const queries = ['restaurant', 'cafe', 'bar', 'groceries', 'gym', 'snacks', 'bakeries', 'florists', 'pharmacies', 'asian cuisine', 'mediterranean cuisine', 'european cuisine', 'bookstores', 'clothing stores', 'electronics stores', 'furniture stores', 'jewelry stores', 'pet stores', 'shoe stores', 'video game stores']
-        const index = Math.floor(Math.random() * queries.length);
-        const API_URL = `${BASE_URL}/search_nearby/${queries[index]}/${lat}/${lng}`;
-        console.log(API_URL);
-        const response = await fetch(API_URL);
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          console.log('Permission to access location was denied');
+        } else {
+          let location = await Location.getLastKnownPositionAsync({});
+          setLocStatus(true);
+          setLatitude(location.coords.latitude);
+          setLongitude(location.coords.longitude);
+          const queries = ['restaurant', 'cafe', 'bar', 'groceries', 'gym', 'pub', 'market', 'bakeries', 'florists', 'pharmacies', 'asian cuisine', 'mediterranean cuisine', 'european cuisine', 'bookstores', 'clothing stores', 'electronics stores', 'furniture stores', 'jewelry stores', 'pet stores', 'shoe stores', 'video game stores']
+          const index = Math.floor(Math.random() * queries.length);
+          const BASE_URL = 'http://192.168.2.13:5000/search_nearby';
+          const API_URL = `${BASE_URL}/${queries[index]}/${location.coords.latitude}/${location.coords.longitude}`;
+          console.log(API_URL);
+          const response = await fetch(API_URL);
 
-        const result = await response.json();
-        // console.log(result.data);
-        const coordinatesList = result.data.map(item => ({
-          latitude: item.latitude,
-          longitude: item.longitude,
-          title: item.name,
-          description: item.address,
-        }));
-        setBusinessMarkers(coordinatesList);
-        let avgLatitude = 0;
-        let avgLongitude = 0;
+          const result = await response.json();
+          console.log(result.data);
+          const coordinatesList = result.data.map(item => ({
+            latitude: item.latitude,
+            longitude: item.longitude,
+            title: item.name,
+            description: item.address,
+            place_id: item.place_id,
+          }));
+          setBusinessMarkers(coordinatesList);
+          let avgLatitude = 0;
+          let avgLongitude = 0;
 
-        coordinatesList.forEach(marker => {
-          avgLatitude += marker.latitude;
-          avgLongitude += marker.longitude;
-        });
-
-        avgLatitude /= coordinatesList.length;
-        avgLongitude /= coordinatesList.length;
-        
-        // Calculate distance between markers
-        let maxDistance = 0;
-        coordinatesList.forEach(marker1 => {
-          coordinatesList.forEach(marker2 => {
-            const distance = Math.sqrt(Math.pow(marker1.latitude - marker2.latitude, 2) + Math.pow(marker1.longitude - marker2.longitude, 2));
-            if (distance > maxDistance) {
-              maxDistance = distance;
-            }
+          coordinatesList.forEach(marker => {
+            avgLatitude += marker.latitude;
+            avgLongitude += marker.longitude;
           });
-        });
-        
-        // Set map region to encompass all markers
-        let region = {
-          latitude: avgLatitude,
-          longitude: avgLongitude,
-          latitudeDelta: maxDistance * 1.2, // Adding some padding
-          longitudeDelta: maxDistance * 1.2,
-        };
 
-        mapRef.current.animateToRegion(region, 500);
+          avgLatitude /= coordinatesList.length;
+          avgLongitude /= coordinatesList.length;
+          
+          // Calculate distance between markers
+          let maxDistance = 0;
+          coordinatesList.forEach(marker1 => {
+            coordinatesList.forEach(marker2 => {
+              const distance = Math.sqrt(Math.pow(marker1.latitude - marker2.latitude, 2) + Math.pow(marker1.longitude - marker2.longitude, 2));
+              if (distance > maxDistance) {
+                maxDistance = distance;
+              }
+            });
+          });
+          
+          // Set map region to encompass all markers
+          let region = {
+            latitude: avgLatitude,
+            longitude: avgLongitude,
+            latitudeDelta: maxDistance * 1.2, // Adding some padding
+            longitudeDelta: maxDistance * 1.2,
+          };
+
+          mapRef.current.animateToRegion(region, 500);
+        }
       } catch (error) {
         console.error('Error fetching nearest businesses:', error);
       }
     };
 
-    if (latitude !== 0 && longitude !== 0) {
+    if (latitude === 0 && longitude === 0) {
       fetchNearBusinesses(latitude, longitude);
     }
-  }, [latitude, longitude]);
+  }, []);
 
   const toggleTasks = () => {
     setIsTasksVisible(!isTasksVisible);
+    setShowCheckInButton(false);
   };
 
   const toggleInfo = () => {
@@ -206,6 +219,7 @@ export default function MapComponent(props) {
 
   const handleSearchFocus = () => {
     getLocation();
+    setShowCheckInButton(false);
     setIsSearchFocused(true);
     Animated.timing(searchBarPosition, {
       toValue: -500,
@@ -239,7 +253,7 @@ export default function MapComponent(props) {
     console.log(suggestion);
     setSelectedSuggestion(suggestion);
     setSearchText(suggestion.main_text);
-    setBusinessMarkers([{ latitude: suggestion.latitude, longitude: suggestion.longitude, title: suggestion.main_text, description: suggestion.address}]);
+    setBusinessMarkers([{ latitude: suggestion.latitude, longitude: suggestion.longitude, title: suggestion.main_text, description: suggestion.address, place_id: suggestion.place_id}]);
     let avgLatitude = 0;
     let avgLongitude = 0;
 
@@ -299,6 +313,39 @@ export default function MapComponent(props) {
     }).start();
     setIsInfoVisible(true);
   }
+
+  const MAX_DISTANCE_THRESHOLD = 3; // Adjust this value as needed
+
+  // Calculate the distance between two coordinates
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Radius of the Earth in kilometers
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c; // Distance in kilometers
+    return distance;
+  };
+
+  // Convert degrees to radians
+  const toRadians = (deg) => {
+    return deg * (Math.PI / 180);
+  };
+
+  // Determine if a business marker is within the specified distance from the user
+  const isWithinDistance = (businessMarker) => {
+    const distance = calculateDistance(latitude, longitude, businessMarker.latitude, businessMarker.longitude);
+    // console.log("distance: ", distance);
+    return distance <= MAX_DISTANCE_THRESHOLD;
+  };
+
+  useEffect(() => {
+    console.log("showCheckInButton has changed:", showCheckInButton);
+  }, [showCheckInButton]);
+
 
   return (
     <View style={styles.container}>
@@ -417,7 +464,7 @@ export default function MapComponent(props) {
               }}
               title="Me"
               description="My location">
-                <Image source={require('../marker.webp')} style={{ width: 50, height: 50 }} />
+                <Image source={require('../home.png')} style={{ width: 50, height: 50 }} />
             </Marker>
           ) : null}
           {businessMarkers.map((marker, index) => (
@@ -429,10 +476,39 @@ export default function MapComponent(props) {
               }}
               title={marker.title || 'Business'}
               description={marker.description}
-            />
+              onPress={() => {
+                if (isWithinDistance(marker)) {
+                  setShowCheckInButton(true);
+                  setBusinessID(marker.place_id);
+                  mapRef.current.animateToRegion({
+                    latitude: marker.latitude,
+                    longitude: marker.longitude,
+                    latitudeDelta: 0.005,
+                    longitudeDelta: 0.005,
+                  });
+                } else {
+                  setShowCheckInButton(false);
+                }
+              }}
+            >
+              <Image source={isWithinDistance(marker) ? require('../nearby_marker.webp') : require('../marker.webp')} style={{ width: 50, height: 50 }} />
+            </Marker>
           ))}
         </MapView>
       </View>
+
+      {showCheckInButton && (
+        <TouchableOpacity
+          style={styles.checkInButton}
+          onPress={() => {
+            console.log("BUTTON HAS BEEN PRESSED! OPEN CAMERA PLEASE!");
+            console.log("Business ID:", businessID);
+          }}
+        >
+          <Text style={styles.checkInButtonText}>Check In</Text>
+        </TouchableOpacity>
+      )}
+
       <View style={styles.taskButtonContainer}>
         <TouchableOpacity
           style={styles.taskButton}
@@ -623,5 +699,29 @@ const styles = StyleSheet.create({
   },
   suggestionText: {
     fontSize: 16,
+  },
+  checkInButton: {
+    position: 'absolute',
+    bottom: 300,
+    width: 200,
+    height: 50,
+    alignSelf: 'center',
+    backgroundColor: '#00ADB5',
+    borderRadius: 10,
+    padding: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+    elevation: 5, // For Android shadow
+    shadowColor: '#000', // For iOS shadow
+    shadowOpacity: 0.2, // For iOS shadow
+    shadowOffset: { width: 0, height: 4 }, // For iOS shadow
+    shadowRadius: 3.84,
+  },
+  checkInButtonText: {
+    alignSelf: 'center',
+    color: '#FFFFFF',
+    fontSize: 24,
+    fontWeight: 'bold',
   },
 });
