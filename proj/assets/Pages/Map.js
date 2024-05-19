@@ -184,8 +184,10 @@ export default function MapComponent(props) {
       const API_URL = `${BASE_URL}/${suggestion.place_id}}`;
       console.log(API_URL);
       const response = await fetch(API_URL);
+      console.log("response: ", response);
       const result = await response.json();
-      setBusinessDetails(result.data[0]);
+      console.log("result: ", result.data);
+      setBusinessDetails(result.data);
     } catch (error) {
       console.error('Error fetching suggestions:', error);
     }
@@ -264,7 +266,9 @@ export default function MapComponent(props) {
       >
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
           <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, width: '80%', maxHeight: '80%' }}>
+          {/* {businessDetails && (
             <ScrollView>
+              {console.log(businessDetails)}
               <TouchableOpacity onPress={toggleInfo} style={{ alignSelf: 'flex-end' }}>
                 <Svg onPress={toggleInfo} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <Path d="M3 12H21" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -272,19 +276,14 @@ export default function MapComponent(props) {
                 </Svg>
               </TouchableOpacity>
 
-              {/* Header Section */}
               <Text style={{ fontSize: 30, textAlign: 'center', marginBottom: 10, fontWeight: 'bold' }}>{businessDetails.name}</Text>
 
-              {/* Summary Section */}
               <Text style={{ fontSize: 16, textAlign: 'center', marginBottom: 10 }}>{businessDetails.about.summary}</Text>
 
-              {/* Location Section */}
               <Text style={{ fontSize: 16, marginBottom: 10 }}>{businessDetails.address}</Text>
 
-              {/* Operating Hours Section */}
               <Text style={{ fontSize: 16, marginBottom: 10 }}>{businessDetails.opening_status}</Text>
 
-              {/* Contact Information Section */}
               {businessDetails.phone_number && (
                 <Text style={{ fontSize: 16, marginBottom: 10 }}>Phone: {businessDetails.phone_number}</Text>
               )}
@@ -292,18 +291,17 @@ export default function MapComponent(props) {
                 <Text style={{ fontSize: 16, marginBottom: 10 }}>Instagram: {businessDetails.emails_and_contacts.instagram}</Text>
               )}
 
-              {/* Rating and Reviews Section */}
               <Text style={{ fontSize: 16, marginBottom: 10 }}>Rating: {businessDetails.rating}</Text>
               <TouchableOpacity onPress={() => Linking.openURL(businessDetails.reviews_link)}>
                 <Text style={{ color: '#234beb', fontSize: 16, marginBottom: 10 }}>Read Reviews</Text>
               </TouchableOpacity>
 
-              {/* Additional Details Section */}
               <Text style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>Additional Details</Text>
               <Text style={{ fontSize: 16 }}>Accessibility: {businessDetails.about.details.Accessibility}</Text>
               <Text style={{ fontSize: 16 }}>Payments: {businessDetails.about.details.Payments}</Text>
               <Text style={{ fontSize: 16 }}>Service options: {businessDetails.about.details["Service options"]}</Text>
             </ScrollView>
+          )} */}
           </View>
         </View>
       </Modal>
