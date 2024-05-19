@@ -1,4 +1,4 @@
-import dbrequests as db
+import neureloRequests as db
 class User:
     def __init__(self,name, userName, achievements, locationHistory, friendsList, levelXP, profile_picture):
         self.name = name
@@ -10,7 +10,7 @@ class User:
         self.profile_pic = profile_picture
 
 def addUser(User):
-    db.POST("CommUnity", "Players", {"username":User.userName,"name":User.name, "achievements":User.achievements, "location_history":User.locationHistory, "friends":User.friendsList, "xp":User.levelXP, "profile_pic":User.profile_pic})
+    db.POST({"username":User.userName,"name":User.name, "achievements":User.achievements, "location_history":User.locationHistory, "friends":User.friendsList, "xp":User.levelXP, "profile_pic":User.profile_pic})
 
 
 p1 = User("Johnny", "JohnBoi7", {"A_1":0, "A_2":1}, ["Mum's house"], [], 680, "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1UsseJLum7bkeD5q2e78A5FOb0BBENJSZNMQqy4fQXQ&s")
@@ -22,9 +22,9 @@ addUser(p1)
 addUser(p2)
 addUser(p3)
 addUser(p4)
-db.PATCH("CommUnity", "Players", {"_id": {"$oid": "6648db43f07f2066e226e06b"}}, {"$set": {"friends": ["6648db42f07f2066e226dfe6","6648db431498b7e9a8fcd7d2", "6648db43f07f2066e226e0b5"]}})
-db.PATCH("CommUnity", "Players", {"_id": {"$oid": "6648db42f07f2066e226dfe6"}}, {"$set": {"friends": ["6648db43f07f2066e226e06b","6648db431498b7e9a8fcd7d2", "6648db43f07f2066e226e0b5"]}})
-db.PATCH("CommUnity", "Players", {"_id": {"$oid": "6648db431498b7e9a8fcd7d2"}}, {"$set": {"friends": ["6648db43f07f2066e226e06b","6648db42f07f2066e226dfe6", "6648db43f07f2066e226e0b5"]}})
-db.PATCH("CommUnity", "Players", {"_id": {"$oid": "6648db43f07f2066e226e0b5"}}, {"$set": {"friends": ["6648db43f07f2066e226e06b","6648db431498b7e9a8fcd7d2", "6648db42f07f2066e226dfe6"]}})
+db.PATCH("6648db43f07f2066e226e06b", {"friends": ["6648db42f07f2066e226dfe6","6648db431498b7e9a8fcd7d2", "6648db43f07f2066e226e0b5"]})
+db.PATCH("6648db42f07f2066e226dfe6",  {"friends": ["6648db43f07f2066e226e06b","6648db431498b7e9a8fcd7d2", "6648db43f07f2066e226e0b5"]})
+db.PATCH("6648db431498b7e9a8fcd7d2",  {"friends": ["6648db43f07f2066e226e06b","6648db42f07f2066e226dfe6", "6648db43f07f2066e226e0b5"]})
+db.PATCH("6648db43f07f2066e226e0b5",  {"friends": ["6648db43f07f2066e226e06b","6648db431498b7e9a8fcd7d2", "6648db42f07f2066e226dfe6"]})
 
 print(db.GET("CommUnity", "Players"))
