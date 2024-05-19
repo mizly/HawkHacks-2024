@@ -87,7 +87,10 @@ export default function Profile({ navigation }) {
                   <TouchableOpacity
                     key={index}
                     style={styles.friend}
-                    onPress={() => navigation.navigate('FriendProfile', { friendId: friend.data._id })}
+                    onPress={() => {
+                      console.log(friend.data); // Log friend.data when TouchableOpacity is pressed
+                      navigation.navigate('FriendProfile', { friendId: friend.data.id });
+                    }}
                   >
                     <Image source={{ uri: friend.data.profile_pic }} style={styles.friendImage} />
                     <Text style={styles.friendName}>{friend.data.name || "Friend"}</Text>
