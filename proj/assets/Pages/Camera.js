@@ -1,7 +1,8 @@
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useState, useRef } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
+import { Button, StyleSheet, Text, TouchableOpacity, View, Alert, Modal } from 'react-native';
+import Svg, {Path} from "react-native-svg";
 import { BASE_URL } from './config';
 const API_URL = `${BASE_URL}/upload`;
 
@@ -9,7 +10,14 @@ export default function Camera(route) {
   const [facing, setFacing] = useState('back');
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef(null); // Reference to the camera component
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isInfoVisible, setIsInfoVisible] = useState(false);
+  const [message, setMessage] = useState('');
   const navigation = useNavigation(); // Get navigation object
+
+  const toggleInfo = () => {
+    setIsInfoVisible(!isInfoVisible);
+  };
 
   if (!permission) {
     // Camera permissions are still loading.
@@ -49,12 +57,18 @@ export default function Camera(route) {
           const responseData = await response.json();
           console.log('Image uploaded successfully:', responseData);
           // Display an alert with the response data
-          Alert.alert('Upload Successful', responseData.message);
+          setIsSuccess(true);
+          setMessage(responseData.message);
+          setIsInfoVisible(true);
+          // Alert.alert('Upload Successful', responseData.message);
 
         } else {
           console.error('Failed to upload image:', response.statusText);
           // Handle error response here if needed
-          Alert.alert('Upload Failed', 'Failed to upload image. Please try again.');
+          setIsSuccess(false);
+          setMessage('Failed to upload image. Please try again.');
+          setIsInfoVisible(true);
+          // Alert.alert('Upload Failed', 'Failed to upload image. Please try again.');
         }
       } catch (error) {
         console.error('Failed to take picture or upload image:', error);
@@ -75,6 +89,30 @@ export default function Camera(route) {
           </TouchableOpacity>
         </View>
       </CameraView>
+
+      <Modal
+      visible={isInfoVisible}
+      animationType="slide"
+      transparent={true}
+      onRequestClose={toggleInfo}
+    >
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+        <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, width: '80%', maxHeight: '50%' }}>
+          <TouchableOpacity onPress={toggleInfo} style={{alignSelf:'flex-end'}}>
+            <Svg onPress={toggleInfo} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <Path d="M3 12H21" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <Path d="M12 3L21 12L12 21" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
+          </TouchableOpacity>
+          <Text style={{ fontSize: 32, textAlign: 'center', marginBottom: 2, fontWeight: 'bold', color: 'green' }}>
+            {isSuccess ? 'Upload Successful' : 'Upload Failed'}
+          </Text>
+          <Text style={{ fontSize: 16, textAlign: 'center', padding: 10 }}>
+            {message}
+          </Text>
+        </View>
+      </View>
+    </Modal>
     </View>
   );
 }
