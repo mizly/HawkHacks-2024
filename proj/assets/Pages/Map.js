@@ -257,6 +257,8 @@ export default function MapComponent(navigation) {
     let avgLatitude = 0;
     let avgLongitude = 0;
 
+    const updatedMarkers = [{ latitude: suggestion.latitude, longitude: suggestion.longitude }, { latitude: latitude, longitude: longitude}];
+
     updatedMarkers.forEach(marker => {
       avgLatitude += marker.latitude;
       avgLongitude += marker.longitude;
