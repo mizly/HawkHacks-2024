@@ -121,6 +121,36 @@ export default function MapComponent(props) {
     }
   }
 
+  const startLocationUpdates = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      console.log('Permission to access location was denied');
+      return;
+    }
+
+    await Location.watchPositionAsync(
+      {
+        accuracy: Location.Accuracy.High,
+        timeInterval: 5000,
+        distanceInterval: 0,
+      },
+      (location) => {
+        setLatitude(location.coords.latitude);
+        setLongitude(location.coords.longitude);
+        console.log('Location updated:', location.coords);
+      }
+    );
+  };
+
+  useEffect(() => {
+    startLocationUpdates();
+    return () => {
+      if (locationIntervalRef.current) {
+        clearInterval(locationIntervalRef.current);
+      }
+    };
+  }, []);
+
   const handleSearchFocus = () => {
     getLocation();
     setIsSearchFocused(true);
