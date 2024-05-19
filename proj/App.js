@@ -2,6 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StyleSheet, View } from 'react-native';
+import { useRoute } from '@react-navigation/native';
 import Footer from './assets/Pages/Footer';
 import History from './assets/Pages/History';
 import Profile from './assets/Pages/Profile';
@@ -24,6 +25,9 @@ function MainStack({ navigation }) {
     setPage('History');
   };
 
+  const route = useRoute();
+
+
   let currentPage = null;
 
   if (page === 'History') {
@@ -32,7 +36,7 @@ function MainStack({ navigation }) {
     currentPage = (
       <>
         <View style={styles.mapContainer}>
-          <MapComponent navigate={(lat, lng) => handlePassback(lat, lng)} />
+          <MapComponent navigation={navigation} route={route} />
         </View>
         <View style={styles.pageContainer} />
       </>
