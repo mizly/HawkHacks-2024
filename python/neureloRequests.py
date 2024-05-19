@@ -10,7 +10,7 @@ BASE_URL = os.getenv("NEURELO_URL")
 def GET(id=""):
     return requests.get(f"{BASE_URL}/{id}", headers = {
       'X-API-KEY': f'{API_KEY}'
-    })
+    }).json()
 
 def POST(data):
     url = f"{BASE_URL}/__one?"
@@ -43,3 +43,4 @@ def PATCH(id,data):
     else:
         return f"Error: {response.status_code}"
     
+print(GET())
