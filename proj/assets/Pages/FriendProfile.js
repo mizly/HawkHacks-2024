@@ -75,7 +75,7 @@ export default function FriendProfile({ navigation,route }) {
                 <Text style={styles.level}>{Math.floor(data.xp / 100) || 1}</Text>
               </View>
               <View style={styles.xpBar}>
-                <ProgressBar progress={(data.xp % 100 || 0) / 100} width={300} height={20} borderRadius={20} color={'#00ADB5'} />
+                <ProgressBar progress={(data.xp % 100 || 0) / 100} width={300} height={20} borderRadius={20} color={'#A2B29F'} />
                 <Text style={styles.xpText}>{`${data.xp % 100}/100` || "50/100"}</Text>
               </View>
             </View>
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
-    backgroundColor: '#00ADB5',
+    backgroundColor: '#A2B29F',
     borderRadius: 15,
     paddingHorizontal: 10,
     paddingVertical: 5,

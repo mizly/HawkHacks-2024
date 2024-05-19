@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#EEEEEE',
+    backgroundColor: '#BDD2B6',
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingVertical: 10,
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   button: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#EEEEEE',
+    backgroundColor: '#F8EDE3',
     borderRadius: 20,
     paddingVertical: 10,
     paddingHorizontal: 15,
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     color: '#000', // Default text color
   },
   selectedButton: {
-    backgroundColor: '#00ADB5',
+    backgroundColor: '#798777',
   },
   selectedText: {
     color: '#fff', // Text color when button is selected
