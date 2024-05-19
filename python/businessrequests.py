@@ -33,8 +33,8 @@ def search_nearby(query, lat, lng, region="ca"):
     lng: float, longitude
     region: str, the region to search in
     '''
-    url = "https://local-business-data.p.rapidapi.com/search"
-    querystring = {"query": query, "limit": "20", "lat": lat, "lng": lng, "language": "en", "region": region}
+    url = "https://local-business-data.p.rapidapi.com/search-in-area"
+    querystring = {"query": query, "limit": "10", "lat": lat, "lng": lng, "zoom": 12, "language": "en", "region": region}
 
     return requests.get(url, headers=headers, params=querystring).json()
 
