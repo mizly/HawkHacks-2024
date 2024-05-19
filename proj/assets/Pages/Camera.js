@@ -1,6 +1,7 @@
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useState, useRef } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Button, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
 
 const BASE_URL = 'http://172.20.10.3:5000/upload';
 
@@ -8,6 +9,7 @@ export default function Camera() {
   const [facing, setFacing] = useState('back');
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef(null); // Reference to the camera component
+  const navigation = useNavigation(); // Get navigation object
 
   if (!permission) {
     // Camera permissions are still loading.
@@ -44,14 +46,19 @@ export default function Camera() {
         });
   
         if (response.ok) {
-          console.log('Image uploaded successfully');
-          // Handle success response here if needed
+          const responseData = await response.json();
+          console.log('Image uploaded successfully:', responseData);
+          // Display an alert with the response data
+          Alert.alert('Upload Successful', responseData.message);
+
         } else {
           console.error('Failed to upload image:', response.statusText);
           // Handle error response here if needed
+          Alert.alert('Upload Failed', 'Failed to upload image. Please try again.');
         }
       } catch (error) {
         console.error('Failed to take picture or upload image:', error);
+        Alert.alert('Error', 'Failed to take picture or upload image. Please try again.');
       }
     }
   }
@@ -90,7 +97,7 @@ const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#rgba(0, 0, 0, 0.3)',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
     borderRadius: 10,
     padding: 10,
   },
