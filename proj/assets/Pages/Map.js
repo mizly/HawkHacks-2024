@@ -358,6 +358,10 @@ export default function MapComponent(navigation) {
 
       <View style={styles.container}>
 
+      {showCamera && (
+          <Camera style={{ zIndex: 5 }} />
+        )}
+
         <Animated.View style={[styles.searchContainer, { transform: [{ translateY: searchBarPosition }] }]}>
           <TextInput
             style={styles.searchBar}
@@ -513,9 +517,6 @@ export default function MapComponent(navigation) {
           </MapView>
         </View>
 
-        {showCamera && (
-          <Camera style={{ zIndex: 5 }} />
-        )}
 
         {showCheckInButton && (
           <TouchableOpacity
